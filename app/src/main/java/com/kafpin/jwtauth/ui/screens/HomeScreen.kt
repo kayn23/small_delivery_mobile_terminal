@@ -26,10 +26,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kafpin.jwtauth.R
+import com.kafpin.jwtauth.models.InvoicePreview
+import com.kafpin.jwtauth.ui.screens.components.InvoiceFilter
 import com.kafpin.jwtauth.ui.screens.components.InvoicePreviewCard
 import com.kafpin.jwtauth.ui.viewmodels.HomeViewModel
-import coil.compose.rememberAsyncImagePainter
-import com.kafpin.jwtauth.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -41,38 +42,39 @@ fun HomeScreen(
     val invoices by viewModel.invoices.observeAsState(emptyList())
     val loading by viewModel.loading.observeAsState(false)
     val errorMessage by viewModel.errorMessage.observeAsState(null)
-
     var showSwipeImage by remember { mutableStateOf(false) }
-    fun refreshData() {
-        viewModel.getInvoices()
-    }
 
     LaunchedEffect(Unit) {
-        viewModel.getInvoices()
+        refreshData(viewModel)
+    }
+
+    val navigateToDetail by viewModel.navigateToDetail.observeAsState()
+    navigateToDetail?.let { invoiceId ->
+        HandleNavigation(invoiceId, viewModel, onClick)
     }
 
     LaunchedEffect(showSwipeImage) {
         if (showSwipeImage) {
-            delay(600) // Задержка перед скрытием (например, 1 секунда)
+            delay(600)
             showSwipeImage = false
         }
     }
 
-
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(Unit) {
-                detectVerticalDragGestures { change, dragAmount ->
-                    if (dragAmount > 0 && !loading) { // Свайп вниз
-                        showSwipeImage = true // Показываем всплывающее изображение
-                        refreshData() // Обновляем данные
-                    }
-                    change.consume()
-                }
-            }
+
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            InvoiceFilter(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { filter ->
+                    viewModel.getInvoices(filter)
+                    viewModel.saveFilter(filter)
+                },
+                initValue = viewModel.filters,
+                onSearch = { query -> viewModel.getInvoices(query) }
+            )
             Box(
                 modifier = modifier
                     .fillMaxWidth()
@@ -80,52 +82,84 @@ fun HomeScreen(
             ) {
                 HorizontalDivider()
             }
-            // Всплывающее изображение для свайпа
             if (showSwipeImage) {
-                Image(
-                    painter = painterResource(R.drawable.images), // Замените на URL вашей картинки
-                    contentDescription = "Swipe down to refresh",
-                    modifier = Modifier
-                        .size(100.dp) // Размер изображения
-                        .padding(16.dp) // Отступы
-                        .align(Alignment.CenterHorizontally) // Центрируем изображение по горизонтали
-                )
+                SwipeRefreshImage(Modifier.align(Alignment.CenterHorizontally))
             }
-
             when {
-                loading -> {
-                    Text(
-                        text = "История заказов загружается...",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                errorMessage != null -> {
-                    Text(
-                        text = errorMessage ?: "Неизвестная ошибка",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-
-                invoices.isNotEmpty() -> {
-                    LazyColumn {
-                        items(invoices) { invoice ->
-                            InvoicePreviewCard(
-                                invoicePreview = invoice,
-                                modifier = Modifier.fillMaxWidth(),
-                                onClickMoreInfo = {
-                                    onClick(invoice.id.toString())
-                                }
-                            )
+                loading -> LoadingIndicator()
+                errorMessage != null -> ErrorMessage(errorMessage)
+                invoices.isNotEmpty() -> InvoicesList(invoices, onClick, modifier = Modifier.pointerInput(Unit) {
+                    detectVerticalDragGestures { change, dragAmount ->
+                        if (dragAmount > 0 && !loading) {
+                            showSwipeImage = true
+                            refreshData(viewModel)
                         }
+                        change.consume()
                     }
-                }
-
-                else -> {
-                    Text("Нет данных")
-                }
+                })
+                else -> NoDataMessage()
             }
         }
     }
+}
+
+private fun refreshData(viewModel: HomeViewModel) {
+    viewModel.getInvoices(filters = viewModel.filters)
+}
+
+@Composable
+private fun HandleNavigation(invoiceId: String, viewModel: HomeViewModel, onClick: (String) -> Unit) {
+    LaunchedEffect(invoiceId) {
+        onClick(invoiceId)
+        viewModel.clearNavigoteToDetail()
+    }
+}
+
+@Composable
+fun SwipeRefreshImage(modifier: Modifier) {
+    Image(
+        painter = painterResource(R.drawable.images),
+        contentDescription = "Swipe down to refresh",
+        modifier = Modifier
+            .size(100.dp)
+            .padding(16.dp)
+            .then(modifier)
+    )
+}
+
+@Composable
+fun LoadingIndicator() {
+    Text(
+        text = "История заказов загружается...",
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun ErrorMessage(message: String?) {
+    Text(
+        text = message ?: "Неизвестная ошибка",
+        color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun InvoicesList(invoices: List<InvoicePreview>, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
+    LazyColumn {
+        items(invoices) { invoice ->
+            InvoicePreviewCard(
+                invoicePreview = invoice,
+                modifier = Modifier.fillMaxWidth().then(modifier),
+                onClickMoreInfo = { onClick(invoice.id.toString()) }
+            )
+        }
+    }
+}
+
+@Composable
+fun NoDataMessage() {
+    Text("Нет данных", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 }
