@@ -90,6 +90,9 @@ dependencies {
     // Coroutine support
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
+    implementation("io.coil-kt:coil-compose:2.1.0")
+
     /*
     // Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")

@@ -23,31 +23,26 @@ import androidx.compose.ui.unit.sp
 import com.kafpin.jwtauth.ui.viewmodels.AuthViewModel
 
 @Composable
-fun LoginScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier.fillMaxSize()) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    viewModel: AuthViewModel,
+    onSigned: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxSize()
+) {
+    var username by remember { mutableStateOf("kayn23@yandex.ru") }
+    var password by remember { mutableStateOf("232111") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            "Sign in",
-            fontSize = 30.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp, top = 60.dp)
-        )
         TextField(
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 15.dp)
+                .padding(bottom = 15.dp, top = 30.dp)
         )
         TextField(
             value = password,
@@ -60,8 +55,7 @@ fun LoginScreen(viewModel: AuthViewModel, modifier: Modifier = Modifier.fillMaxS
         )
         Button(
             onClick = {
-                viewModel.login(username, password)
-                // TODO add navigation
+                viewModel.login(username, password, okCallback = onSigned)
             },
             modifier = Modifier
                 .fillMaxWidth()

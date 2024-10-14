@@ -13,21 +13,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kafpin.jwtauth.data.TokenManager
+import com.kafpin.jwtauth.ui.MyApplication
 import com.kafpin.jwtauth.ui.screens.LoginScreen
 import com.kafpin.jwtauth.ui.theme.JwtAuthTheme
 import com.kafpin.jwtauth.ui.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var tokenManager: TokenManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
         setContent {
-            JwtAuthTheme {
-                val viewModel: AuthViewModel = hiltViewModel()
+            JwtAuthTheme(darkTheme = true) {
                 MaterialTheme {
-                    LoginScreen(viewModel)
+                    MyApplication(tokenManager)
                 }
             }
         }
