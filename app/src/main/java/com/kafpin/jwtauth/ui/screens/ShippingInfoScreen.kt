@@ -1,7 +1,6 @@
 package com.kafpin.jwtauth.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -15,16 +14,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,20 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.kafpin.jwtauth.network.shippings.Cargo
 import com.kafpin.jwtauth.network.shippings.ShippingOne
-import com.kafpin.jwtauth.ui.screens.components.FloatingQrButton
 import com.kafpin.jwtauth.ui.viewmodels.ShippingInfoResult
 import com.kafpin.jwtauth.ui.viewmodels.ShippingInfoViewModel
 import java.time.Instant
@@ -103,10 +96,14 @@ fun ShippingInfoCard(
     onReload: () -> Unit = {},
 ) {
 
-    Box() {
-        Column(modifier = Modifier
-            .padding(16.dp)
-            .pointerInput(Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        )
+        {
+            // Информация о доставке
+            ShippingInfo(shipping, onClick = {}, modifier = Modifier.pointerInput(Unit) {
                 detectVerticalDragGestures { change, dragAmount ->
                     if (dragAmount > 0) {
                         onReload()
@@ -114,9 +111,6 @@ fun ShippingInfoCard(
                     change.consume()
                 }
             })
-        {
-            // Информация о доставке
-            ShippingInfo(shipping, onClick = {})
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -146,12 +140,16 @@ fun formatDateTime(dateString: String?): String? {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShippingInfo(shipping: ShippingOne, onClick: () -> Unit = {}) {
+fun ShippingInfo(shipping: ShippingOne, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
     // Состояние для открытия/закрытия меню
-    var expanded by remember { mutableStateOf(false) }
+//    var expanded by remember { mutableStateOf(false) }
 
 
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier), verticalAlignment = Alignment.Top
+    ) {
         Column(
             modifier = Modifier.weight(6f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -222,8 +220,16 @@ fun CargoItem(cargo: Cargo) {
         shape = MaterialTheme.shapes.small
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Cargo ID: ${cargo.id ?: "N/A"}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(bottom = 4.dp))
-            Text("Size: ${cargo.size ?: "N/A"}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(bottom = 4.dp))
+            Text(
+                "Cargo ID: ${cargo.id ?: "N/A"}",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                "Size: ${cargo.size ?: "N/A"}",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
             Text(
                 "Description: ${cargo.description ?: "N/A"}",
                 style = MaterialTheme.typography.bodyMedium
@@ -250,41 +256,43 @@ fun CargoInfo(shipping: ShippingOne) {
 
     // Список грузов
     if (shipping.cargoes.isNotEmpty()) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Cargoes (${shipping.cargoes.size}) ${shipping.cargoes.sumOf { it.size ?: 0 }}/${shipping.capacity}",
-                style = MaterialTheme.typography.titleSmall
-            )
-            IconButton(onClick = {}) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Cargoes (${shipping.cargoes.size}) ${shipping.cargoes.sumOf { it.size ?: 0 }}/${shipping.capacity}",
+                    style = MaterialTheme.typography.titleSmall
+                )
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add cargo"
+                    )
+                }
+            }
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(vertical = 4.dp), horizontalArrangement = Arrangement.Center) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add cargo"
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Hide direction",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .fillMaxWidth(),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-        }
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable { expanded = !expanded }
-            .padding(vertical = 4.dp), horizontalArrangement = Arrangement.Center) {
-            Icon(
-                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = "Hide direction",
-                modifier = Modifier
-                    .size(24.dp)
-                    .fillMaxWidth(),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-        }
-        if (expanded) {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(shipping.cargoes) { cargo ->
-                    CargoItem(cargo)
+            if (expanded) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(shipping.cargoes) { cargo ->
+                        CargoItem(cargo)
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.kafpin.jwtauth.data
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -23,13 +24,18 @@ enum class Role(val id: String, val title: String) {
 
 @Singleton
 class RoleManager @Inject constructor(private val dataStore: DataStore<Preferences>) {
+    private val TAG = "raleManager"
     companion object {
         val ROLE_KEY = stringPreferencesKey("role_key")
     }
 
     suspend fun saveRole(role: String) {
-        dataStore.edit { preferences ->
-            preferences[ROLE_KEY] = role
+        try {
+            dataStore.edit { preferences ->
+                preferences[ROLE_KEY] = role
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "saveRole: ${e.message}")
         }
     }
 

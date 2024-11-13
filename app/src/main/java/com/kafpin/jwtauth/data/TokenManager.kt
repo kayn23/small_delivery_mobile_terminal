@@ -14,14 +14,19 @@ import javax.inject.Singleton
 
 @Singleton
 class TokenManager @Inject constructor(private val dataStore: DataStore<Preferences>) {
+    val TAG = "tokenManager"
 
     companion object {
         val TOKEN_KEY = stringPreferencesKey("token_key")
     }
 
     suspend fun saveToken(token: String) {
-        dataStore.edit { preferences ->
-            preferences[TOKEN_KEY] = token
+        try {
+            dataStore.edit { preferences ->
+                preferences[TOKEN_KEY] = token
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "saveToken: ${e.message}")
         }
     }
 

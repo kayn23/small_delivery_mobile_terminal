@@ -23,26 +23,30 @@ class AuthViewModel @Inject constructor(
     fun login(email: String, password: String, okCallback: () -> Unit = {}) {
         try {
             viewModelScope.launch {
-                val response = authService.login(LoginRequest(email, password))
-                if (response.isSuccessful) {
-                    response.body()?.let { res ->
-
-                        roleManager.saveRole(res.role)
-                        tokenManager.saveToken(res.token)
-                        Log.d(TAG, "token: ${res.token}")
-                        Log.d(TAG, "Role: ${res.role}")
-                        okCallback()
+                try {
+                    val response = authService.login(LoginRequest(email, password))
+                    if (response.isSuccessful) {
+                        response.body()?.let { res ->
+                            roleManager.saveRole(res.role)
+                            tokenManager.saveToken(res.token)
+                            Log.d(TAG, "token: ${res.token}")
+                            Log.d(TAG, "Role: ${res.role}")
+                            okCallback()
+                        }
+                    } else {
+                        Log.d("error", "error: ${response.code()} ${response.message()}")
                     }
-                } else {
-                    Log.d("error", "error")
+                } catch (e: IOException) {
+                    // Обработка сетевых ошибок
+                    Log.e(TAG, "Network error: ${e.message}")
+                } catch (e: Exception) {
+                    // Обработка других исключений
+                    Log.e(TAG, "Unexpected error: ${e.message}")
                 }
             }
-        } catch (e: IOException) {
-            // Обработка сетевых ошибок
-            Log.e("AuthViewModel", "Network error: ${e.message}")
         } catch (e: Exception) {
-            // Обработка других исключений
-            Log.e("AuthViewModel", "Unexpected error: ${e.message}")
+            // Если ошибка происходит при запуске самого launch
+            Log.e(TAG, "Unexpected error: ${e.message}")
         }
     }
 }
