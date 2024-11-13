@@ -28,13 +28,14 @@ fun LoginScreen(
     onSigned: () -> Unit,
     modifier: Modifier = Modifier.fillMaxSize()
 ) {
-    var username by remember { mutableStateOf("kayn23@yandex.ru") }
+    var username by remember { mutableStateOf("admin@gmail.com") }
     var password by remember { mutableStateOf("232111") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .then(modifier)
     ) {
         TextField(
             value = username,

@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.kafpin.jwtauth.models.InvoiceStatus
 import com.kafpin.jwtauth.models.InvoicePreview
 
-@Preview
 @Composable
 fun InvoicePreviewCard(
     invoicePreview: InvoicePreview = InvoicePreview(id = 10, status = 2),

@@ -1,10 +1,9 @@
 package com.kafpin.jwtauth.ui.viewmodels
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kafpin.jwtauth.data.RoleManager
 import com.kafpin.jwtauth.data.TokenManager
 import com.kafpin.jwtauth.network.AuthService
 import com.kafpin.jwtauth.network.LoginRequest
@@ -17,22 +16,22 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val authService: AuthService,
     private val tokenManager: TokenManager,
+    private val roleManager: RoleManager
 ) : ViewModel() {
-
-    private val _token = MutableLiveData<String?>()
-    val token: LiveData<String?> get() = _token
+    val TAG = "AuthViewModel"
 
     fun login(email: String, password: String, okCallback: () -> Unit = {}) {
         try {
             viewModelScope.launch {
                 val response = authService.login(LoginRequest(email, password))
                 if (response.isSuccessful) {
-                    response.body()?.token?.let { token ->
-                        Log.d("success", token)
-                        tokenManager.saveToken(token)
-                        _token.value = token
+                    response.body()?.let { res ->
+
+                        roleManager.saveRole(res.role)
+                        tokenManager.saveToken(res.token)
+                        Log.d(TAG, "token: ${res.token}")
+                        Log.d(TAG, "Role: ${res.role}")
                         okCallback()
-                        // somebody
                     }
                 } else {
                     Log.d("error", "error")
@@ -40,11 +39,9 @@ class AuthViewModel @Inject constructor(
             }
         } catch (e: IOException) {
             // Обработка сетевых ошибок
-            _token.value = null
             Log.e("AuthViewModel", "Network error: ${e.message}")
         } catch (e: Exception) {
             // Обработка других исключений
-            _token.value = null
             Log.e("AuthViewModel", "Unexpected error: ${e.message}")
         }
     }

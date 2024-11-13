@@ -65,7 +65,17 @@ fun HomeScreen(
             .fillMaxSize()
 
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { change, dragAmount ->
+                    if (dragAmount > 0 && !loading) {
+                        showSwipeImage = true
+                        refreshData(viewModel)
+                    }
+                    change.consume()
+                }
+            }) {
             InvoiceFilter(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { filter ->
@@ -88,15 +98,19 @@ fun HomeScreen(
             when {
                 loading -> LoadingIndicator()
                 errorMessage != null -> ErrorMessage(errorMessage)
-                invoices.isNotEmpty() -> InvoicesList(invoices, onClick, modifier = Modifier.pointerInput(Unit) {
-                    detectVerticalDragGestures { change, dragAmount ->
-                        if (dragAmount > 0 && !loading) {
-                            showSwipeImage = true
-                            refreshData(viewModel)
+                invoices.isNotEmpty() -> InvoicesList(
+                    invoices,
+                    onClick,
+                    modifier = Modifier.pointerInput(Unit) {
+                        detectVerticalDragGestures { change, dragAmount ->
+                            if (dragAmount > 0 && !loading) {
+                                showSwipeImage = true
+                                refreshData(viewModel)
+                            }
+                            change.consume()
                         }
-                        change.consume()
-                    }
-                })
+                    })
+
                 else -> NoDataMessage()
             }
         }
@@ -108,7 +122,11 @@ private fun refreshData(viewModel: HomeViewModel) {
 }
 
 @Composable
-private fun HandleNavigation(invoiceId: String, viewModel: HomeViewModel, onClick: (String) -> Unit) {
+private fun HandleNavigation(
+    invoiceId: String,
+    viewModel: HomeViewModel,
+    onClick: (String) -> Unit
+) {
     LaunchedEffect(invoiceId) {
         onClick(invoiceId)
         viewModel.clearNavigoteToDetail()
@@ -147,12 +165,18 @@ fun ErrorMessage(message: String?) {
 }
 
 @Composable
-fun InvoicesList(invoices: List<InvoicePreview>, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
+fun InvoicesList(
+    invoices: List<InvoicePreview>,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyColumn {
         items(invoices) { invoice ->
             InvoicePreviewCard(
                 invoicePreview = invoice,
-                modifier = Modifier.fillMaxWidth().then(modifier),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(modifier),
                 onClickMoreInfo = { onClick(invoice.id.toString()) }
             )
         }

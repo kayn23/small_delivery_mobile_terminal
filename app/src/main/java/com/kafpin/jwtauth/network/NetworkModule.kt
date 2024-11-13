@@ -26,7 +26,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/api/")
+            .baseUrl("http://10.0.2.2:3000/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -42,5 +42,17 @@ object NetworkModule {
     @Singleton
     fun provideInvoiceService(retrofit: Retrofit): InvoiceService {
         return retrofit.create(InvoiceService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideShippingService(retrofit: Retrofit): ShippingService {
+        return retrofit.create(ShippingService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStockService(retrofit: Retrofit): StockService {
+        return retrofit.create(StockService::class.java)
     }
 }
