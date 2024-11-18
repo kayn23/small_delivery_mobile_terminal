@@ -1,10 +1,10 @@
-package com.kafpin.jwtauth.network.shippings
+package com.kafpin.jwtauth.models.shippings
 
 import com.google.gson.annotations.SerializedName
-import com.kafpin.jwtauth.network.cities.City
+import com.kafpin.jwtauth.models.cities.City
 
 
-data class StartPoint (
+data class EndPoint (
 
   @SerializedName("id"        ) var id        : Int?     = null,
   @SerializedName("name"      ) var name      : String?  = null,

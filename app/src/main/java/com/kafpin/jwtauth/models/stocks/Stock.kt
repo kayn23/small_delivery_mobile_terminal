@@ -1,7 +1,7 @@
-package com.kafpin.jwtauth.network.stocks
+package com.kafpin.jwtauth.models.stocks
 
 import com.google.gson.annotations.SerializedName
-import com.kafpin.jwtauth.network.cities.City
+import com.kafpin.jwtauth.models.cities.City
 
 
 data class Stock (

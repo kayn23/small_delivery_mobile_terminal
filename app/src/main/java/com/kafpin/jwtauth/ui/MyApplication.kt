@@ -25,6 +25,7 @@ import com.kafpin.jwtauth.AppNavHost
 import com.kafpin.jwtauth.R
 import com.kafpin.jwtauth.data.Role
 import com.kafpin.jwtauth.data.RoleManager
+import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.data.TokenManager
 import com.kafpin.jwtauth.ui.screens.components.Header
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 fun MyApplication(
     tokenManager: TokenManager,
     roleManager: RoleManager,
+    stockInfoManager: StockInfoManager,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -49,6 +51,8 @@ fun MyApplication(
     fun signOut() {
         coroutineScope.launch {
             tokenManager.clearToken()
+            roleManager.clearRole()
+            stockInfoManager.clearStockInfo()
             navController.navigate(AppDestinations.SignIn.route) {
                 popUpTo(AppDestinations.Home.route) {
                     inclusive = true
@@ -58,23 +62,7 @@ fun MyApplication(
         }
     }
 
-    val role by roleManager.roleFlow.collectAsState(initial = null)
-
     Scaffold(
-        floatingActionButton = {
-            if (role == Role.Admin) {
-                FloatingActionButton(
-                    onClick = { /* Действие при нажатии */ },
-                    containerColor = MaterialTheme.colorScheme.onSecondaryContainer
-                ) {
-                    Image(
-                        modifier = Modifier.width(40.dp),
-                        painter = painterResource(id = R.drawable.qr_code), // Используем изображение QR-кода
-                        contentDescription = "QR Code"
-                    )
-                }
-            }
-        },
         topBar = {
             Box() {
                 Header(
@@ -86,11 +74,6 @@ fun MyApplication(
                         signOut()
                     }
                 )
-
-                /* HorizontalDivider(
-                    thickness = 2.dp,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )*/
             }
         }
     ) {
@@ -107,6 +90,7 @@ fun MyApplication(
                     modifier = modifier.padding(8.dp),
                     tokenManager,
                     roleManager,
+                    stockInfoManager
                 )
             }
         }

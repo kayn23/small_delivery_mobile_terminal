@@ -1,8 +1,8 @@
-package com.kafpin.jwtauth.network.shippings
+package com.kafpin.jwtauth.models.shippings
 
 import com.google.gson.annotations.SerializedName
-import com.kafpin.jwtauth.network.cities.City
-import com.kafpin.jwtauth.network.stocks.Stock
+import com.kafpin.jwtauth.models.cities.City
+import com.kafpin.jwtauth.models.stocks.Stock
 
 
 data class Cargo (

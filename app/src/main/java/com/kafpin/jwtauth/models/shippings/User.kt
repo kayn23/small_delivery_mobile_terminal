@@ -1,4 +1,4 @@
-package com.kafpin.jwtauth.network.shippings
+package com.kafpin.jwtauth.models.shippings
 
 import com.google.gson.annotations.SerializedName
 

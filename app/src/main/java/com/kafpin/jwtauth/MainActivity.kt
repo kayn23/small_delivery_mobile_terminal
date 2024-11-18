@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kafpin.jwtauth.data.RoleManager
+import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.data.TokenManager
 import com.kafpin.jwtauth.ui.MyApplication
 import com.kafpin.jwtauth.ui.screens.LoginScreen
@@ -28,6 +29,8 @@ class MainActivity : ComponentActivity() {
     lateinit var tokenManager: TokenManager
     @Inject
     lateinit var roleManager: RoleManager
+    @Inject
+    lateinit var stockInfoManager: StockInfoManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +38,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             JwtAuthTheme(darkTheme = true) {
                 MaterialTheme {
-                    MyApplication(tokenManager, roleManager)
+                    MyApplication(tokenManager, roleManager, stockInfoManager)
                 }
             }
         }

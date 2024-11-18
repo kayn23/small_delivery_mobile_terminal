@@ -3,6 +3,7 @@ package com.kafpin.jwtauth
 sealed class AppDestinations(val title: String, val route: String) {
     object SignIn: AppDestinations("Sign in", "signin");
     object Home: AppDestinations("Account home", "account_home");
+    object StockSelect: AppDestinations("Stock select", "stock_select");
     data class InvoiceDetails(val id: String): AppDestinations("Invoice details", "invoice/$id");
     data class ShippingDetails(val id: String): AppDestinations("Shipping details", "shipping/$id")
 
@@ -11,6 +12,7 @@ sealed class AppDestinations(val title: String, val route: String) {
             return when {
                 route == SignIn.route -> SignIn
                 route == Home.route -> Home
+                route == StockSelect.route -> StockSelect
                 route?.startsWith("shipping/") == true -> {
                     val id = route.substringAfter("shipping/")
                     ShippingDetails(id)

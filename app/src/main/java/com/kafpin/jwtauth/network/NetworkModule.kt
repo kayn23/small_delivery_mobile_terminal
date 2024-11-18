@@ -55,4 +55,10 @@ object NetworkModule {
     fun provideStockService(retrofit: Retrofit): StockService {
         return retrofit.create(StockService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideCargoService(retrofit: Retrofit): CargoService {
+        return retrofit.create(CargoService::class.java)
+    }
 }

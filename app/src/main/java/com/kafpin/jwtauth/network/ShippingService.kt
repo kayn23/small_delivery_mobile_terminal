@@ -1,11 +1,13 @@
 package com.kafpin.jwtauth.network
 
-import com.kafpin.jwtauth.network.shippings.CargoList
-import com.kafpin.jwtauth.network.shippings.ShippingList
-import com.kafpin.jwtauth.network.shippings.ShippingOne
-import com.kafpin.jwtauth.network.shippings.ShortShippingOne
-import com.kafpin.jwtauth.network.shippings.dto.AddCargoToShippingDto
-import com.kafpin.jwtauth.network.shippings.dto.CreateShippingDto
+import com.kafpin.jwtauth.models.shippings.CargoList
+import com.kafpin.jwtauth.models.shippings.ShippingList
+import com.kafpin.jwtauth.models.shippings.ShippingOne
+import com.kafpin.jwtauth.models.shippings.ShortShippingOne
+import com.kafpin.jwtauth.models.shippings.dto.AcceptCargoResponseDto
+import com.kafpin.jwtauth.models.shippings.dto.AddCargoToShippingDto
+import com.kafpin.jwtauth.models.shippings.dto.ApplyCargoDto
+import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -53,10 +55,14 @@ interface ShippingService {
     suspend fun createShipping(@Body body: CreateShippingDto): Response<ShortShippingOne>
 
     @AuthRequired
-    @POST("shipping/{id}/add_cargo")
-    suspend fun addCargoToShipping(@Path("id") id: Int, @Body addCargoToShippingDto: AddCargoToShippingDto): Response<ShortShippingOne>
+    @POST("shipping/{id}/add-cargo")
+    suspend fun addCargoToShipping(@Path("id") id: Int, @Body addCargoToShippingDto: AddCargoToShippingDto): Response<ShippingOne>
 
     @AuthRequired
-    @GET("shipping/{id}/get_cargo")
+    @GET("shipping/{id}/get-cargo")
     suspend fun getCargoFromShipping(@Path("id") id: Int): Response<CargoList>
+
+    @AuthRequired
+    @POST("cargo/acceptCargo")
+    suspend fun applyCargo(@Body acceptCargoDto: ApplyCargoDto): Response<AcceptCargoResponseDto>
 }

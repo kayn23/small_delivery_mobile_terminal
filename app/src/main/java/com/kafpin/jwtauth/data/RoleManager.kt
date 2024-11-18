@@ -13,11 +13,15 @@ import javax.inject.Singleton
 
 enum class Role(val id: String, val title: String) {
     Client("1", "client"),
-    Admin("2", "admin");
+    Admin("2", "admin"),
+    Courier("3", "courier");
 
     companion object {
         fun findById(id: String): Role? {
             return values().find { it.id == id }
+        }
+        fun findByName(name: String): Role? {
+            return values().find {it.title == name}
         }
     }
 }
@@ -55,7 +59,7 @@ class RoleManager @Inject constructor(private val dataStore: DataStore<Preferenc
         if (res == null) {
             null
         } else {
-            Role.findById(res)
+            Role.findByName(res)
         }
     }
 }

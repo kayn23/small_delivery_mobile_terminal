@@ -1,5 +1,6 @@
 package com.kafpin.jwtauth.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -7,8 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.kafpin.jwtauth.network.ShippingService
-import com.kafpin.jwtauth.network.shippings.Shipping
-import com.kafpin.jwtauth.network.shippings.ShippingOne
+import com.kafpin.jwtauth.models.shippings.Shipping
+import com.kafpin.jwtauth.models.shippings.ShippingOne
+import com.kafpin.jwtauth.models.shippings.dto.AddCargoToShippingDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,18 +35,20 @@ class ShippingInfoViewModel @Inject constructor(
     private val shippingId: Int = savedStateHandle.get<String>("shippingId")?.toInt() ?: 1
 
     // LiveData для отслеживания состояния загрузки
-    private val _shippingListLiveData = MutableLiveData<ShippingInfoResult>(ShippingInfoResult.Loading)
+    private val _shippingListLiveData =
+        MutableLiveData<ShippingInfoResult>(ShippingInfoResult.Loading)
     val shippingListLiveData: LiveData<ShippingInfoResult> get() = _shippingListLiveData
 
     // Метод для загрузки данных
-    private suspend fun loadShippingData() {
+    private suspend fun loadShippingData(id: Int) {
         _shippingListLiveData.postValue(ShippingInfoResult.Loading) // Статус загрузки
         try {
-            val response = shippingService.getShipping(shippingId)
+            val response = shippingService.getShipping(id)
             if (response.isSuccessful) {
                 response.body()?.let {
                     _shippingListLiveData.postValue(ShippingInfoResult.Success(it)) // Успешная загрузка
-                } ?: _shippingListLiveData.postValue(ShippingInfoResult.Error("Empty response body"))
+                }
+                    ?: _shippingListLiveData.postValue(ShippingInfoResult.Error("Empty response body"))
             } else {
                 val errorMessage = parseError(response.errorBody())
                 _shippingListLiveData.postValue(ShippingInfoResult.Error(errorMessage)) // Ошибка от сервера
@@ -53,21 +57,59 @@ class ShippingInfoViewModel @Inject constructor(
             val errorMessage = e.message ?: "Unknown HTTP error"
             _shippingListLiveData.postValue(ShippingInfoResult.NetworkError(errorMessage))
         } catch (e: Exception) {
-            _shippingListLiveData.postValue(ShippingInfoResult.Error(e.message ?: "Неизвестная ошибка"))
+            _shippingListLiveData.postValue(
+                ShippingInfoResult.Error(
+                    e.message ?: "Неизвестная ошибка"
+                )
+            )
+        }
+    }
+
+    private suspend fun addCargo(shippingId: Int, cargoId: Int) {
+        _shippingListLiveData.postValue(ShippingInfoResult.Loading)
+        try {
+            val response = shippingService.addCargoToShipping(
+                shippingId,
+                AddCargoToShippingDto(cargoId = cargoId)
+            )
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    _shippingListLiveData.postValue(ShippingInfoResult.Success(it)) // Успешная загрузка
+                }
+                    ?: _shippingListLiveData.postValue(ShippingInfoResult.Error("Empty response body"))
+            } else {
+                val errorMessage = parseError(response.errorBody())
+                _shippingListLiveData.postValue(ShippingInfoResult.Error(errorMessage)) // Ошибка от сервера
+            }
+        } catch (e: HttpException) {
+            val errorMessage = e.message ?: "Unknown HTTP error"
+            _shippingListLiveData.postValue(ShippingInfoResult.NetworkError(errorMessage))
+        } catch (e: Exception) {
+            _shippingListLiveData.postValue(
+                ShippingInfoResult.Error(
+                    e.message ?: "Неизвестная ошибка"
+                )
+            )
+        }
+    }
+
+    fun addCargoToShipping(shippingId: Int, cargoId: Int) {
+        viewModelScope.launch {
+            addCargo(shippingId, cargoId)
         }
     }
 
     // Функция для ручной загрузки данных (повторный вызов)
-    fun reloadShippingData() {
+    fun reloadShippingData(id: Int) {
         viewModelScope.launch {
-            loadShippingData()
+            loadShippingData(id)
         }
     }
 
     // Инициализация загрузки данных при старте
-    init {
-        viewModelScope.launch {
-            loadShippingData()
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            loadShippingData()
+//        }
+//    }
 }

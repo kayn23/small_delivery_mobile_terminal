@@ -1,4 +1,4 @@
-package com.kafpin.jwtauth.network.stocks
+package com.kafpin.jwtauth.models.stocks
 
 import com.google.gson.annotations.SerializedName
 

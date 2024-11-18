@@ -9,8 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.kafpin.jwtauth.network.ShippingService
-import com.kafpin.jwtauth.network.shippings.Shipping
-import com.kafpin.jwtauth.network.shippings.ShippingList
+import com.kafpin.jwtauth.models.shippings.Shipping
+import com.kafpin.jwtauth.models.shippings.ShippingList
+import com.kafpin.jwtauth.models.shippings.dto.AcceptCargoResponseDto
+import com.kafpin.jwtauth.models.shippings.dto.AddCargoToShippingDto
+import com.kafpin.jwtauth.models.shippings.dto.ApplyCargoDto
+import com.kafpin.jwtauth.models.stocks.StockList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,8 +31,19 @@ sealed class ShippingResult {
     data class NetworkError(val error: String) : ShippingResult()
 }
 
+
+
+sealed class ApplyCargoResult {
+    data object None : ApplyCargoResult()
+    data object Loading : ApplyCargoResult()
+    data class Success(val data: AcceptCargoResponseDto) : ApplyCargoResult()
+    data class Error(val message: String) : ApplyCargoResult()
+    data class NetworkError(val error: String) : ApplyCargoResult()
+}
+
 @HiltViewModel
-class ShippingViewModel @Inject constructor(private val shippingService: ShippingService) : ViewModel() {
+class ShippingViewModel @Inject constructor(private val shippingService: ShippingService) :
+    ViewModel() {
 
     // LiveData для отслеживания состояния
     val shippingListLiveData = liveData(Dispatchers.IO) {
@@ -50,6 +65,10 @@ class ShippingViewModel @Inject constructor(private val shippingService: Shippin
     private val _shippingsResult = MutableLiveData<ShippingResult>()
     val shippingResult: LiveData<ShippingResult> get() = _shippingsResult
 
+    private val _shippingLiveData =
+        MutableLiveData<ShippingInfoResult>(ShippingInfoResult.Loading)
+    val shippingLiveData: LiveData<ShippingInfoResult> get() = _shippingLiveData
+
     val filters: Map<String, String> = emptyMap()
 
     fun getShippings(query: Map<String, String> = emptyMap()) {
@@ -61,18 +80,41 @@ class ShippingViewModel @Inject constructor(private val shippingService: Shippin
                     _shippingsResult.value = response.body()?.let { ShippingResult.Success(it) }
                 } else {
                     val errorResponse = parseError(response.errorBody())
-                   _shippingsResult.value = ShippingResult.Error(errorResponse)
+                    _shippingsResult.value = ShippingResult.Error(errorResponse)
                 }
-            }
-            catch (e: HttpException) {
+            } catch (e: HttpException) {
                 val errorMessage = e.message ?: "Unknown HTTP error"
                 _shippingsResult.value = ShippingResult.NetworkError(errorMessage)
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _shippingsResult.value = ShippingResult.Error(e.message ?: "Неизвестная ошибка")
             }
         }
     }
+
+    private val _cargoApplyData = MutableLiveData<ApplyCargoResult>(ApplyCargoResult.None)
+    val cargoApplyData: LiveData<ApplyCargoResult> get() = _cargoApplyData
+
+    fun applyCargo(body: ApplyCargoDto) {
+        _cargoApplyData.value = ApplyCargoResult.Loading
+        viewModelScope.launch {
+            try {
+                val response = shippingService.applyCargo(body)
+                if (response.isSuccessful) {
+                    _cargoApplyData.value = response.body()?.let { ApplyCargoResult.Success(it) }
+                } else {
+                    val errorResponse = parseError(response.errorBody())
+                    _cargoApplyData.value = ApplyCargoResult.Error(errorResponse)
+                }
+            } catch (e: HttpException) {
+                val errorMessage = e.message ?: "Unknown HTTP error"
+                _cargoApplyData.value = ApplyCargoResult.NetworkError(errorMessage)
+            } catch (e: Exception) {
+                _cargoApplyData.value = ApplyCargoResult.Error(e.message ?: "Неизвестная ошибка")
+            }
+        }
+    }
+
+
 
     // Метод для обработки кода ошибки
     private fun handleErrorResponse(response: Response<ShippingList>) {
@@ -86,7 +128,8 @@ class ShippingViewModel @Inject constructor(private val shippingService: Shippin
             503 -> "Service Unavailable - Try again later"
             else -> "Unknown Error - ${response.message()}"
         }
-        _shippingsResult.value = ShippingResult.Error(errorMessage) // Отправляем сообщение об ошибке на UI
+        _shippingsResult.value =
+            ShippingResult.Error(errorMessage) // Отправляем сообщение об ошибке на UI
     }
 
     // Метод для извлечения деталей ошибки из ResponseBody

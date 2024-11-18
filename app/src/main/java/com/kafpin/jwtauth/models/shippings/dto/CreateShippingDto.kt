@@ -1,4 +1,4 @@
-package com.kafpin.jwtauth.network.shippings.dto
+package com.kafpin.jwtauth.models.shippings.dto
 
 data class CreateShippingDto(
     var capacity: Int,

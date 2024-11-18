@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.kafpin.jwtauth.network.ErrorHandler
-import com.kafpin.jwtauth.network.shippings.ShippingList
+import com.kafpin.jwtauth.models.shippings.ShippingList
 import okhttp3.ResponseBody
 import retrofit2.Response
 

@@ -1,4 +1,4 @@
-package com.kafpin.jwtauth.network.cities
+package com.kafpin.jwtauth.models.cities
 
 import com.google.gson.annotations.SerializedName
 
