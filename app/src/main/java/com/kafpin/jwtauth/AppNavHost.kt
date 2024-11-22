@@ -6,12 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.kafpin.jwtauth.data.Role
 import com.kafpin.jwtauth.data.RoleManager
 import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.data.TokenManager
@@ -32,6 +35,7 @@ fun AppNavHost(
     stockInfoManager: StockInfoManager
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val role by roleManager.roleFlow.collectAsState(null)
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
@@ -46,7 +50,6 @@ fun AppNavHost(
 
     NavHost(navController, startDestination = AppDestinations.SignIn.route, modifier) {
         composable(AppDestinations.SignIn.route) {
-            // TODO need logic to check if user is authorized
             LoginScreen(hiltViewModel(), onSigned = {
                 navController.navigate(AppDestinations.Home.route) {
                     popUpTo(AppDestinations.SignIn.route) { inclusive = true }
@@ -55,20 +58,35 @@ fun AppNavHost(
         }
 
         composable(AppDestinations.Home.route) {
-            ShippingListScreen(viewModel = hiltViewModel(),
-                onStockNav = {
-                    navController.navigate(AppDestinations.StockSelect.route)
-                }, onSelectShipping = { id ->
-                    navController.navigate(
-                        AppDestinations.ShippingDetails(id).route
+            when (role) {
+                Role.Client -> {}
+                Role.Admin -> {
+                    StockSearchScreen(backNav = {
+                        navController.navigate(AppDestinations.Home.route) {
+                            popUpTo(AppDestinations.Home.route) { inclusive = true }
+                        }
+                    }, stockInfoManager = stockInfoManager)
+                }
+
+                Role.Courier -> {
+                    ShippingListScreen(
+                        viewModel = hiltViewModel(),
+                        onSelectShipping = { id ->
+                            navController.navigate(
+                                AppDestinations.ShippingDetails(id).route
+                            )
+                        },
+                        onCreateShippingClick = {
+                            navController.navigate(AppDestinations.CreateShipping.route)
+                        },
+                        roleManager = roleManager,
+                        stockInfoManager = stockInfoManager
                     )
-                },
-                onCreateShippingClick = {
-                    navController.navigate(AppDestinations.CreateShipping.route)
-                },
-                roleManager = roleManager,
-                stockInfoManager = stockInfoManager
-            )
+                }
+
+                null -> {}
+            }
+
         }
 
         composable(AppDestinations.StockSelect.route) {
@@ -88,7 +106,11 @@ fun AppNavHost(
         }
 
         composable(AppDestinations.ShippingDetails("{id}").route) {
-            ShippingInfoScreen(navController = navController)
+            ShippingInfoScreen(navController = navController, onDeleted = {
+                navController.navigate(AppDestinations.Home.route) {
+                    popUpTo(AppDestinations.Home.route) { inclusive = true }
+                }
+            })
         }
 
         composable(AppDestinations.InvoiceDetails("{id}").route) {

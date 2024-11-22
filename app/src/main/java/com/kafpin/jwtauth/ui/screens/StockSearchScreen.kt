@@ -1,6 +1,9 @@
 package com.kafpin.jwtauth.ui.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,9 +11,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -22,17 +32,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kafpin.jwtauth.R
 import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.models.stocks.Stock
+import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen.CargoQrData
+import com.kafpin.jwtauth.ui.screens.components.AcceptResultDialogWrapper
+import com.kafpin.jwtauth.ui.screens.components.AdminBottomBar
+import com.kafpin.jwtauth.ui.screens.components.ApproveCargoDialog
+import com.kafpin.jwtauth.ui.viewmodels.AcceptCargoViewModel
 import com.kafpin.jwtauth.ui.viewmodels.StockListViewModel
 import com.kafpin.jwtauth.ui.viewmodels.StocksResult
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun StockSearchScreen(
     viewModel: StockListViewModel = hiltViewModel(),
+    cargoViewModel: AcceptCargoViewModel = hiltViewModel(),
     stockInfoManager: StockInfoManager,
     backNav: () -> Unit = {}
 ) {
@@ -59,53 +78,90 @@ fun StockSearchScreen(
         }
     }
 
-    // Отображение UI
-    Column(modifier = Modifier.padding(16.dp)) {
-        stockInfo?.let {
-            Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                Text("acctual select stock ${stockInfo!!.name}, ${stockInfo!!.city?.name}, ${stockInfo!!.address}")
-            }
-        }
-        // Поле ввода с подсказками
-        TextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            label = { Text("Search Stocks") },
-            modifier = Modifier.fillMaxWidth()
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+    var isScanDialogOpen by remember { mutableStateOf(false) }
+    var cargoInfo by remember { mutableStateOf<CargoQrData?>(null) }
 
-        when (stocksResult) {
-            is StocksResult.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is StocksResult.Success -> {
-                stockList.value = (stocksResult as StocksResult.Success).data.items
-            }
-
-            is StocksResult.Error -> {
-                Text("Error: ${(stocksResult as StocksResult.Error).message}")
-            }
-
-            is StocksResult.NetworkError -> {
-                Text("Network Error: ${(stocksResult as StocksResult.NetworkError).error}")
-            }
-        }
-
-        // Список складов с возможностью выбора
-        LazyColumn {
-            items(stockList.value) { stock ->
-                StockItem(
-                    stock = stock,
-                    onClick = {
-                        viewModel.saveStockInfo(stock) // Сохранить выбранный склад
-                    }
+    Scaffold(
+        bottomBar = {
+            BottomAppBar {
+                AdminBottomBar(
+                    onScanned = {}
                 )
             }
         }
+    ) {
+        // Отображение UI
+        Column(modifier = Modifier.padding(16.dp)) {
+            stockInfo?.let {
+                Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Text("acctual select stock ${stockInfo!!.name}, ${stockInfo!!.city?.name}, ${stockInfo!!.address}")
+                }
+            }
+            // Поле ввода с подсказками
+            TextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                label = { Text("Search Stocks") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            when (stocksResult) {
+                is StocksResult.Loading -> {
+                    CircularProgressIndicator()
+                }
+
+                is StocksResult.Success -> {
+                    stockList.value = (stocksResult as StocksResult.Success).data.items
+                }
+
+                is StocksResult.Error -> {
+                    Text("Error: ${(stocksResult as StocksResult.Error).message}")
+                }
+
+                is StocksResult.NetworkError -> {
+                    Text("Network Error: ${(stocksResult as StocksResult.NetworkError).error}")
+                }
+            }
+
+            // Список складов с возможностью выбора
+            LazyColumn {
+                items(stockList.value) { stock ->
+                    StockItem(
+                        stock = stock,
+                        onClick = {
+                            viewModel.saveStockInfo(stock) // Сохранить выбранный склад
+                        }
+                    )
+                }
+            }
+        }
+
+        if (isScanDialogOpen) {
+            cargoInfo?.let { it1 ->
+                stockInfo?.let { it2 ->
+                    if (it2.id != null) {
+                        ApproveCargoDialog(
+                            cargoId = it1.cargoId,
+                            placement = it2,
+                            onDismiss = {
+                                isScanDialogOpen = false
+                            },
+                            onConfirm = {
+                                cargoViewModel.acceptCargo(it1.cargoId, it2.id!!)
+                                isScanDialogOpen = false
+                            }
+                        )
+                    }
+
+                }
+            }
+        }
+        AcceptResultDialogWrapper(cargoViewModel)
     }
+
 }
 
 @Composable

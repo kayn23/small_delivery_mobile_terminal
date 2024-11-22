@@ -10,6 +10,7 @@ import com.kafpin.jwtauth.models.shippings.dto.ApplyCargoDto
 import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -59,8 +60,8 @@ interface ShippingService {
     suspend fun addCargoToShipping(@Path("id") id: Int, @Body addCargoToShippingDto: AddCargoToShippingDto): Response<ShippingOne>
 
     @AuthRequired
-    @GET("shipping/{id}/get-cargo")
-    suspend fun getCargoFromShipping(@Path("id") id: Int): Response<CargoList>
+    @DELETE("shipping/{id}")
+    suspend fun removeShipping(@Path("id") id: Int): Response<ShortShippingOne>
 
     @AuthRequired
     @POST("cargo/acceptCargo")

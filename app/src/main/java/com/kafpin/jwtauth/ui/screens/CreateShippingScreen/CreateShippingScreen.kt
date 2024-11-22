@@ -35,6 +35,7 @@ import com.kafpin.jwtauth.models.shippings.ShortShippingOne
 import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import com.kafpin.jwtauth.models.stocks.Stock
 import com.kafpin.jwtauth.ui.screens.components.StockSelectorModal
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
 @Composable
 fun CreateShippingScreen(

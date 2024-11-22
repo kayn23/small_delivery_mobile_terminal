@@ -10,6 +10,13 @@ import com.kafpin.jwtauth.models.shippings.ShippingList
 import okhttp3.ResponseBody
 import retrofit2.Response
 
+sealed class RequestResult<out T> {
+    data object Loading : RequestResult<Nothing>()
+    data class Success<T>(val result: T) : RequestResult<T>()
+    data class Error(val message: String) : RequestResult<Nothing>()
+    data class NetworkError(val error: String) : RequestResult<Nothing>()
+}
+
 open class BaseViewModel(): ViewModel() {
     val errorHandler = ErrorHandler()
 

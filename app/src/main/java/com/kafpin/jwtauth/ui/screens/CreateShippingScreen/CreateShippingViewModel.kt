@@ -11,18 +11,12 @@ import com.kafpin.jwtauth.network.AcceptCargoResponse
 import com.kafpin.jwtauth.network.ShippingService
 import com.kafpin.jwtauth.ui.viewmodels.AcceptCargoResult
 import com.kafpin.jwtauth.ui.viewmodels.BaseViewModel
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
 
-//sealed class CreateShippingResult
-sealed class RequestResult<out T> {
-    data object Loading : RequestResult<Nothing>()
-    data class Success<T>(val result: T) : RequestResult<T>()
-    data class Error(val message: String) : RequestResult<Nothing>()
-    data class NetworkError(val error: String) : RequestResult<Nothing>()
-}
 
 @HiltViewModel
 class CreateShippingViewModel @Inject constructor(private val shippingService: ShippingService) :

@@ -1,5 +1,4 @@
 package com.kafpin.jwtauth.ui.screens.ShippingInfoScreen
-
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -12,10 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,11 +31,7 @@ import com.kafpin.jwtauth.models.shippings.ShippingOne
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShippingInfo(shipping: ShippingOne, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
-    // Состояние для открытия/закрытия меню
-//    var expanded by remember { mutableStateOf(false) }
-
-
+fun ShippingInfo(shipping: ShippingOne, onClickDelete: () -> Unit = {}, modifier: Modifier = Modifier) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,25 +58,15 @@ fun ShippingInfo(shipping: ShippingOne, onClick: () -> Unit = {}, modifier: Modi
 
         }
 
-        // Иконка для открытия выпадающего меню
-//        IconButton(onClick = { expanded = !expanded; onClick }, modifier = Modifier.weight(1f)) {
-//            Icon(
-//                imageVector = Icons.Default.MoreVert, // Иконка "три точки"
-//                contentDescription = "More options"
-//            )
-//            /*// Выпадающее меню
-//            DropdownMenu(
-//                expanded = expanded,
-//                onDismissRequest = { expanded = false }, // Закрытие меню при клике вне
-//            ) {
-//                DropdownMenuItem(onClick = { *//* Действие при выборе первого пункта *//* }, text = {
-//                    Text("Добавить груз")
-//                })
-//                DropdownMenuItem(onClick = { *//* Действие при выборе второго пункта *//* }, text = {
-//                    Text("Option 2")
-//                })
-//            }*/
-//        }
+        // Иконка для удаления
+        if (shipping.cargoes.size == 0) {
+            IconButton(onClick = { onClickDelete() }, modifier = Modifier.weight(1f)) {
+                Icon(
+                    imageVector = Icons.Default.Delete, // Иконка "три точки"
+                    contentDescription = "Delete"
+                )
+            }
+        }
 
 
     }

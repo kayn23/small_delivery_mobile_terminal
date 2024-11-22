@@ -11,6 +11,7 @@ import com.kafpin.jwtauth.network.ShippingService
 import com.kafpin.jwtauth.models.shippings.Shipping
 import com.kafpin.jwtauth.models.shippings.ShippingOne
 import com.kafpin.jwtauth.models.shippings.dto.AddCargoToShippingDto
+import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -106,10 +107,34 @@ class ShippingInfoViewModel @Inject constructor(
         }
     }
 
-    // Инициализация загрузки данных при старте
-//    init {
-//        viewModelScope.launch {
-//            loadShippingData()
-//        }
-//    }
+    private val _deleteResult = MutableLiveData<RequestResult<Boolean>?>()
+    val deleteResult: LiveData<RequestResult<Boolean>?> get() = _deleteResult
+
+    private suspend fun _deleteShipping(id: Int) {
+        _deleteResult.postValue(RequestResult.Loading)
+        try {
+            val response = shippingService.removeShipping(id)
+            if (response.isSuccessful) {
+                _deleteResult.value = RequestResult.Success(true)
+            } else {
+                val errorResponse = parseError(response.errorBody())
+                _deleteResult.value = RequestResult.Error(errorResponse)
+            }
+        } catch (e: HttpException) {
+            val errorMessage = e.message ?: "Unknown HTTP error"
+            _deleteResult.value = RequestResult.NetworkError(errorMessage)
+        } catch (e: Exception) {
+            _deleteResult.value = RequestResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
+    fun clearDeleteResult() {
+        _deleteResult.value = null
+    }
+
+    fun deleteShipping(id: Int) {
+        viewModelScope.launch {
+            _deleteShipping(id)
+        }
+    }
 }
