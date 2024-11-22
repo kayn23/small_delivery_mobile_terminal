@@ -80,12 +80,15 @@ fun StockSearchScreen(
             is StocksResult.Loading -> {
                 CircularProgressIndicator()
             }
+
             is StocksResult.Success -> {
                 stockList.value = (stocksResult as StocksResult.Success).data.items
             }
+
             is StocksResult.Error -> {
                 Text("Error: ${(stocksResult as StocksResult.Error).message}")
             }
+
             is StocksResult.NetworkError -> {
                 Text("Network Error: ${(stocksResult as StocksResult.NetworkError).error}")
             }
@@ -111,7 +114,7 @@ fun StockItem(stock: Stock, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(8.dp)
+            .padding(vertical = 8.dp)
     ) {
         Text(stock.name ?: "No name", fontWeight = FontWeight.Bold)
         Text(stock.address ?: "No address")

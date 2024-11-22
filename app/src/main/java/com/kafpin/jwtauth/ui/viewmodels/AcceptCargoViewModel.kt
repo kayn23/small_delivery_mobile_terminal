@@ -23,8 +23,8 @@ sealed class AcceptCargoResult {
 class AcceptCargoViewModel @Inject constructor(private val cargoService: CargoService) :
     BaseViewModel() {
     private val TAG = "AcceptCargoViewModel"
-    private val _result = MutableLiveData<AcceptCargoResult>()
-    val acceptResult: LiveData<AcceptCargoResult> get() = _result
+    private val _result = MutableLiveData<AcceptCargoResult?>()
+    val acceptResult: LiveData<AcceptCargoResult?> get() = _result
 
     private suspend fun _acceptCargo(cargoId: Int, stockId: Int) {
         _result.postValue(AcceptCargoResult.Loading)

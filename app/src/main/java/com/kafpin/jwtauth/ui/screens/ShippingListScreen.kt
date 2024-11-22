@@ -173,6 +173,7 @@ fun ShippingListScreen(
     onStockNav: () -> Unit = {},
     roleManager: RoleManager,
     stockInfoManager: StockInfoManager,
+    onCreateShippingClick: () -> Unit = {},
     cargoViewModel: AcceptCargoViewModel = hiltViewModel(),
 ) {
     val shippingResult by viewModel.shippingResult.observeAsState(ShippingResult.Loading)
@@ -238,6 +239,7 @@ fun ShippingListScreen(
                         modifier = Modifier
                             .padding(10.dp)
                             .width(40.dp)
+                            .clickable { onCreateShippingClick() }
                     )
                     if (role === Role.Admin) {
                         Icon(
@@ -261,8 +263,8 @@ fun ShippingListScreen(
                 }
             }
         }
-    ) {
-        Box {
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

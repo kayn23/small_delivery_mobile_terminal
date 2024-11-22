@@ -12,7 +12,6 @@ import com.kafpin.jwtauth.network.LoginRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 sealed class LoginResult {
@@ -41,9 +40,8 @@ class AuthViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     response.body()?.let { res ->
                         roleManager.saveRole(res.role)
+                        roleManager.saveUserId(res.userId)
                         tokenManager.saveToken(res.token)
-                        Log.d(TAG, "token: ${res.token}")
-                        Log.d(TAG, "Role: ${res.role}")
                         _result.value = LoginResult.Success
                         okCallback()
                     }

@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import com.kafpin.jwtauth.data.RoleManager
 import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.data.TokenManager
+import com.kafpin.jwtauth.ui.screens.CreateShippingScreen.CreateShippingScreen
 import com.kafpin.jwtauth.ui.screens.InvoiceDetailsScreen
 import com.kafpin.jwtauth.ui.screens.LoginScreen
 import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen
@@ -54,13 +55,17 @@ fun AppNavHost(
         }
 
         composable(AppDestinations.Home.route) {
-            ShippingListScreen(viewModel = hiltViewModel(), onStockNav = {
-                navController.navigate(AppDestinations.StockSelect.route)
-            }, onSelectShipping = { id ->
-                navController.navigate(
-                    AppDestinations.ShippingDetails(id).route
-                )
-            },
+            ShippingListScreen(viewModel = hiltViewModel(),
+                onStockNav = {
+                    navController.navigate(AppDestinations.StockSelect.route)
+                }, onSelectShipping = { id ->
+                    navController.navigate(
+                        AppDestinations.ShippingDetails(id).route
+                    )
+                },
+                onCreateShippingClick = {
+                    navController.navigate(AppDestinations.CreateShipping.route)
+                },
                 roleManager = roleManager,
                 stockInfoManager = stockInfoManager
             )
@@ -72,6 +77,14 @@ fun AppNavHost(
                     popUpTo(AppDestinations.Home.route) { inclusive = true }
                 }
             }, stockInfoManager = stockInfoManager)
+        }
+
+        composable(AppDestinations.CreateShipping.route) {
+            CreateShippingScreen(roleManager, onCreated = { shipping ->
+                navController.navigate(AppDestinations.ShippingDetails(shipping.id.toString()).route) {
+                    popUpTo(AppDestinations.CreateShipping.route) { inclusive = true }
+                }
+            })
         }
 
         composable(AppDestinations.ShippingDetails("{id}").route) {
