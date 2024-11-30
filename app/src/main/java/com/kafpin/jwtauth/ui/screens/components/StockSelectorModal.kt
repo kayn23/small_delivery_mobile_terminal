@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kafpin.jwtauth.models.stocks.Stock
 import com.kafpin.jwtauth.ui.screens.StockItem
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 import com.kafpin.jwtauth.ui.viewmodels.StockListViewModel
-import com.kafpin.jwtauth.ui.viewmodels.StocksResult
 
 @Composable
-fun StockSelectorModal(viewModel: StockListViewModel = hiltViewModel(), onClose: () -> Unit = {}, onSuccess: (id: Stock) ->  Unit = {}) {
-    val stocksResult by viewModel.stocksData.observeAsState(StocksResult.Loading)
+fun StockSelectorModal(viewModel: StockListViewModel = hiltViewModel(), onClose: () -> Unit = {}, onSuccess: (stock: Stock) ->  Unit = {}) {
+    val stocksResult by viewModel.stocksData.observeAsState(RequestResult.Init)
     val stockList = remember { mutableStateOf<List<Stock>>(emptyList()) }
     var searchText by remember { mutableStateOf("") }
 
@@ -63,17 +63,30 @@ fun StockSelectorModal(viewModel: StockListViewModel = hiltViewModel(), onClose:
                 Spacer(modifier = Modifier.height(8.dp))
 
                 when (stocksResult) {
-                    is StocksResult.Loading -> {
+                    is RequestResult.Loading -> {
                         CircularProgressIndicator()
                     }
-                    is StocksResult.Success -> {
-                        stockList.value = (stocksResult as StocksResult.Success).data.items
+                    is RequestResult.Success -> {
+                        stockList.value = (stocksResult as RequestResult.Success).result.items
                     }
-                    is StocksResult.Error -> {
-                        Text("Error: ${(stocksResult as StocksResult.Error).message}")
+                    is RequestResult.Error -> {
+                        Text("Error: ${(stocksResult as RequestResult.Error).message}")
                     }
-                    is StocksResult.NetworkError -> {
-                        Text("Network Error: ${(stocksResult as StocksResult.NetworkError).error}")
+                    is RequestResult.NetworkError -> {
+                        Text("Network Error: ${(stocksResult as RequestResult.NetworkError).error}")
+                    }
+
+                    RequestResult.Init -> {}
+                    RequestResult.ServerNotAvailable -> {
+                        IpInputDialog(
+                            onConfirm = { newIp ->
+                                viewModel.saveServerIp(newIp)
+                            },
+                            ipServerManager = viewModel.ipServerManager,
+                            onDismiss = {
+                                viewModel.clearSockData()
+                            }
+                        )
                     }
                 }
 

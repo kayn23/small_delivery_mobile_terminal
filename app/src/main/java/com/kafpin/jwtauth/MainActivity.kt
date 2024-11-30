@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kafpin.jwtauth.data.IpServerManager
 import com.kafpin.jwtauth.data.RoleManager
 import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.data.TokenManager
@@ -31,6 +32,8 @@ class MainActivity : ComponentActivity() {
     lateinit var roleManager: RoleManager
     @Inject
     lateinit var stockInfoManager: StockInfoManager
+    @Inject
+    lateinit var ipServerManager: IpServerManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -38,8 +38,9 @@ import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.models.shippings.Shipping
 import com.kafpin.jwtauth.models.shippings.ShippingList
 import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen.formatDateTime
-import com.kafpin.jwtauth.ui.viewmodels.ShippingResult
-import com.kafpin.jwtauth.ui.viewmodels.ShippingViewModel
+import com.kafpin.jwtauth.ui.screens.components.IpInputDialog
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
+import com.kafpin.jwtauth.ui.viewmodels.ShippingListViewModel
 
 // Composable для отображения информации о каждом Shipping
 @RequiresApi(Build.VERSION_CODES.O)
@@ -143,13 +144,13 @@ fun ShippingListPreview(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ShippingListScreen(
-    viewModel: ShippingViewModel,
+    viewModel: ShippingListViewModel,
     onSelectShipping: (id: String) -> Unit,
     roleManager: RoleManager,
     stockInfoManager: StockInfoManager,
     onCreateShippingClick: () -> Unit = {},
 ) {
-    val shippingResult by viewModel.shippingResult.observeAsState(ShippingResult.Loading)
+    val shippingResult by viewModel.shippingResult.observeAsState(RequestResult.Init)
     val stockInfo by stockInfoManager.stockInfoFlow.collectAsState(null)
 
     val role by roleManager.roleFlow.collectAsState(null)
@@ -189,28 +190,41 @@ fun ShippingListScreen(
                     }
             ) {
                 when (val data = shippingResult) {
-                    is ShippingResult.Loading -> {
+                    is RequestResult.Loading -> {
                         CircularProgressIndicator(modifier = Modifier.fillMaxSize())
                     }
 
-                    is ShippingResult.Error -> {
+                    is RequestResult.Error -> {
                         Text(
                             text = "Ошибка: ${data.message}",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
 
-                    is ShippingResult.NetworkError -> {
+                    is RequestResult.NetworkError -> {
                         Text(
                             text = "Ошибка: ${data.error}",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
 
-                    is ShippingResult.Success -> {
+                    is RequestResult.Success -> {
                         ShippingListPreview(
-                            shippingList = data.data,
+                            shippingList = data.result,
                             onSelectShipping = onSelectShipping,
+                        )
+                    }
+
+                    RequestResult.Init -> {}
+                    RequestResult.ServerNotAvailable -> {
+                        IpInputDialog(
+                            onConfirm = { newIp ->
+                                viewModel.saveServerIp(newIp)
+                            },
+                            ipServerManager = viewModel.ipServerManager,
+                            onDismiss = {
+                                viewModel.clearState()
+                            }
                         )
                     }
                 }
@@ -219,7 +233,7 @@ fun ShippingListScreen(
     }
 }
 
-private fun refreshData(viewModel: ShippingViewModel) {
+private fun refreshData(viewModel: ShippingListViewModel) {
     val map = LinkedHashMap<String, String>()
     map["show_end"] = "true"
     viewModel.getShippings(query = map)

@@ -1,13 +1,9 @@
 package com.kafpin.jwtauth
 
-import android.util.Log
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -19,7 +15,6 @@ import com.kafpin.jwtauth.data.RoleManager
 import com.kafpin.jwtauth.data.StockInfoManager
 import com.kafpin.jwtauth.data.TokenManager
 import com.kafpin.jwtauth.ui.screens.CreateShippingScreen.CreateShippingScreen
-import com.kafpin.jwtauth.ui.screens.InvoiceDetailsScreen
 import com.kafpin.jwtauth.ui.screens.LoginScreen
 import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen
 import com.kafpin.jwtauth.ui.screens.ShippingListScreen
@@ -32,7 +27,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     tokenManager: TokenManager,
     roleManager: RoleManager,
-    stockInfoManager: StockInfoManager
+    stockInfoManager: StockInfoManager,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val role by roleManager.roleFlow.collectAsState(null)
@@ -61,11 +56,7 @@ fun AppNavHost(
             when (role) {
                 Role.Client -> {}
                 Role.Admin -> {
-                    StockSearchScreen(backNav = {
-                        navController.navigate(AppDestinations.Home.route) {
-                            popUpTo(AppDestinations.Home.route) { inclusive = true }
-                        }
-                    }, stockInfoManager = stockInfoManager)
+                    StockSearchScreen()
                 }
 
                 Role.Courier -> {
@@ -89,14 +80,6 @@ fun AppNavHost(
 
         }
 
-        composable(AppDestinations.StockSelect.route) {
-            StockSearchScreen(backNav = {
-                navController.navigate(AppDestinations.Home.route) {
-                    popUpTo(AppDestinations.Home.route) { inclusive = true }
-                }
-            }, stockInfoManager = stockInfoManager)
-        }
-
         composable(AppDestinations.CreateShipping.route) {
             CreateShippingScreen(roleManager, onCreated = { shipping ->
                 navController.navigate(AppDestinations.ShippingDetails(shipping.id.toString()).route) {
@@ -111,10 +94,6 @@ fun AppNavHost(
                     popUpTo(AppDestinations.Home.route) { inclusive = true }
                 }
             })
-        }
-
-        composable(AppDestinations.InvoiceDetails("{id}").route) {
-            InvoiceDetailsScreen(navController)
         }
     }
 }

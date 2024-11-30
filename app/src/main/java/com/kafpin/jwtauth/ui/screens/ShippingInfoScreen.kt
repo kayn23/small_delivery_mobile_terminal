@@ -9,11 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,9 +28,9 @@ import com.kafpin.jwtauth.models.shippings.ShippingOne
 import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen.CargoInfo
 import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen.Direction
 import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen.ShippingInfo
+import com.kafpin.jwtauth.ui.screens.components.IpInputDialog
 import com.kafpin.jwtauth.ui.screens.components.StatusDialog
 import com.kafpin.jwtauth.ui.viewmodels.RequestResult
-import com.kafpin.jwtauth.ui.viewmodels.ShippingInfoResult
 import com.kafpin.jwtauth.ui.viewmodels.ShippingInfoViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -50,8 +47,9 @@ fun ShippingInfoScreen(
         viewModel.reloadShippingData(shippingId)
     }
 
-    val deleteResult by viewModel.deleteResult.observeAsState()
+    val deleteResult by viewModel.deleteResult.observeAsState(RequestResult.Init)
     var deleteText by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(deleteResult) {
         when (val data = deleteResult) {
             is RequestResult.Error -> {
@@ -67,27 +65,29 @@ fun ShippingInfoScreen(
             is RequestResult.Success -> {
                 onDeleted()
             }
-
-            null -> {}
+            is RequestResult.ServerNotAvailable -> {
+                deleteText = "Error: Server connection error"
+            }
+            is RequestResult.Init -> {}
         }
     }
 
 
     // Загрузка данных с использованием ViewModel
-    val shippingResult by viewModel.shippingListLiveData.observeAsState()
+    val shippingResult by viewModel.shippingListLiveData.observeAsState(RequestResult.Init)
 
     when (val result = shippingResult) {
-        is ShippingInfoResult.Loading -> {
+        is RequestResult.Loading -> {
             // Показываем экран загрузки
             CircularProgressIndicator(modifier = Modifier.fillMaxSize())
         }
 
-        is ShippingInfoResult.Success -> {
+        is RequestResult.Success -> {
             // Показываем данные
-            ShippingInfoCard(shipping = result.data,
+            ShippingInfoCard(shipping = result.result,
                 onReload = { viewModel.reloadShippingData(shippingId) },
                 onAddCargo = { cargoId ->
-                    viewModel.addCargoToShipping(shippingId = result.data.id!!, cargoId = cargoId)
+                    viewModel.addCargoToShipping(shippingId = result.result.id!!, cargoId = cargoId)
                 },
                 onDelete = { id ->
                     viewModel.deleteShipping(id)
@@ -95,7 +95,7 @@ fun ShippingInfoScreen(
             )
         }
 
-        is ShippingInfoResult.Error -> {
+        is RequestResult.Error -> {
             // Показываем ошибку
             Column {
                 Text("Error: ${result.message}")
@@ -105,13 +105,21 @@ fun ShippingInfoScreen(
             }
         }
 
-        is ShippingInfoResult.NetworkError -> {
+        is RequestResult.NetworkError -> {
             // Показываем ошибку сети
             Text("Network Error: ${result.error}")
         }
-
-        null -> {
-            Text("No data!")
+        is RequestResult.Init -> {}
+        is RequestResult.ServerNotAvailable -> {
+            IpInputDialog(
+                onConfirm = { newIp ->
+                    viewModel.saveServerIp(newIp)
+                },
+                ipServerManager = viewModel.ipServerManager,
+                onDismiss = {
+                    viewModel.clearShippingState()
+                }
+            )
         }
     }
 

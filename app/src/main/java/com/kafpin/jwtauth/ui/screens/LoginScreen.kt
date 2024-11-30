@@ -19,13 +19,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kafpin.jwtauth.ui.screens.components.IpInputDialog
 import com.kafpin.jwtauth.ui.viewmodels.AuthViewModel
-import com.kafpin.jwtauth.ui.viewmodels.LoginResult
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
 @Composable
 fun LoginScreen(
@@ -36,7 +35,7 @@ fun LoginScreen(
     var username by remember { mutableStateOf("admin@gmail.com") }
     var password by remember { mutableStateOf("232111") }
 
-    val requestResult by viewModel.requestResult.observeAsState()
+    val requestResult by viewModel.requestResult.observeAsState(RequestResult.Init)
 
     Column(
         modifier = Modifier
@@ -65,7 +64,7 @@ fun LoginScreen(
             onClick = {
                 viewModel.login(username, password, okCallback = onSigned)
             },
-            enabled = requestResult !is LoginResult.Loading,
+            enabled = requestResult !is RequestResult.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 15.dp),
@@ -75,25 +74,33 @@ fun LoginScreen(
         }
 
         when (val data = requestResult) {
-            is LoginResult.Error -> {
+            is RequestResult.Error -> {
                 Text("Error: ${data.message}")
             }
 
-            LoginResult.Loading -> {
+            RequestResult.Loading -> {
                 Row(horizontalArrangement = Arrangement.Center) {
                     CircularProgressIndicator()
                 }
             }
 
-            is LoginResult.NetworkError -> {
+            is RequestResult.NetworkError -> {
                 Text(text = "Ошибка: ${data.error}", style = MaterialTheme.typography.bodyLarge)
             }
 
-            LoginResult.Success -> {}
-            null -> {}
+            is RequestResult.Success -> {}
+            is RequestResult.Init -> {}
+            is RequestResult.ServerNotAvailable -> {
+                IpInputDialog(
+                    onConfirm = { newIp ->
+                        viewModel.saveServerIp(newIp)
+                    },
+                    ipServerManager = viewModel.ipServerManager,
+                    onDismiss = {
+                        viewModel.clearState()
+                    }
+                )
+            }
         }
-        /* viewModel.token.observeAsState().value?.let { token ->
-             Text("Logged in with token: $token")
-         }*/
     }
 }

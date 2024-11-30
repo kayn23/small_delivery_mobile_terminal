@@ -1,41 +1,27 @@
 package com.kafpin.jwtauth.ui.viewmodels
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.kafpin.jwtauth.network.ErrorHandler
+import com.kafpin.jwtauth.data.IpServerManager
 import com.kafpin.jwtauth.models.shippings.ShippingList
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
+import retrofit2.HttpException
 import retrofit2.Response
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownServiceException
+import javax.inject.Inject
 
-sealed class RequestResult<out T> {
-    data object Loading : RequestResult<Nothing>()
-    data class Success<T>(val result: T) : RequestResult<T>()
-    data class Error(val message: String) : RequestResult<Nothing>()
-    data class NetworkError(val error: String) : RequestResult<Nothing>()
-}
 
-open class BaseViewModel(): ViewModel() {
-    val errorHandler = ErrorHandler()
-
-    protected val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> get() = _errorMessage
-
-    protected val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> get() = _loading
-
-    protected fun errorHandle(response: Response<*>) {
-        val errorMessage = errorHandler.handleError(response)
-        _errorMessage.value = errorMessage
-    }
-
-    var isRefreshing = MutableLiveData<Boolean>()
-
-    protected fun handleException(exception: Exception) {
-        _errorMessage.value = exception.message ?: "Неизвестная ошибка"
-    }
+open class BaseViewModel @Inject constructor(
+    private val ipServerManager: IpServerManager  // Инжектируем IpServerManager
+) : ViewModel() {
+    private val TAG = "ViewModel"
 
     // Метод для обработки кода ошибки
     protected fun handleErrorResponse(response: Response<ShippingList>): String {
@@ -61,6 +47,78 @@ open class BaseViewModel(): ViewModel() {
             errorJson.get("message")?.asString ?: "Unknown error"
         } catch (e: Exception) {
             "Failed to parse error: ${e.localizedMessage}"
+        }
+    }
+
+    protected fun httpErrorHandling(e: HttpException): RequestResult<Nothing> {
+        return failedToConnectHandling(e)
+    }
+
+    protected fun failedToConnectHandling(e: Exception): RequestResult<Nothing> {
+        if (e.message?.contains("failed to connect") == true) {
+            return RequestResult.ServerNotAvailable
+        } else {
+            return RequestResult.NetworkError("Ошибка соединения: ${e.message}")
+        }
+    }
+
+    protected fun UnknownServiceExceptionHandling(e: UnknownServiceException): RequestResult<Nothing> {
+        val errorMessage = e.message ?: "Unknown error"
+        if (errorMessage.contains("CLEARTEXT communication")) {
+            return RequestResult.ServerNotAvailable
+        }
+        return RequestResult.Error(errorMessage)
+    }
+
+    fun handleException(e: Exception): RequestResult<Nothing> {
+        Log.d(TAG, "handleException: ${e}")
+        return when (e) {
+            is SocketTimeoutException -> failedToConnectHandling(e)
+            is UnknownServiceException -> UnknownServiceExceptionHandling(e)
+            is ConnectException -> RequestResult.ServerNotAvailable
+            is HttpException -> httpErrorHandling(e)
+            else -> RequestResult.Error(e.message ?: "Неизвестная ошибка")
+        }
+    }
+
+    fun <T> safeApiCall(
+        call: suspend () -> Response<T>,
+        _result: MutableLiveData<RequestResult<T>>,
+        successCallback: suspend (value: T) -> Unit = {}
+    ) {
+        _result.value = RequestResult.Loading
+        viewModelScope.launch {
+            try {
+                val response = call()
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        response.body()?.let { res ->
+                            _result.value = response.body()?.let { RequestResult.Success(it) }
+                            successCallback(res)
+                        }
+                    } ?: run {
+                        _result.value = RequestResult.Error("Пустой ответ")
+                    }
+                } else {
+                    val errorResponse = parseError(response.errorBody())
+                    _result.value = RequestResult.Error(errorResponse)
+                }
+
+            } catch (e: Exception) {
+                _result.value = handleException(e)
+            }
+        }
+    }
+
+    // Добавляем функцию для сохранения IP
+    fun saveServerIp(ip: String) {
+        viewModelScope.launch {
+            try {
+                ipServerManager.saveIpServer(ip)
+                Log.d(TAG, "IP сохранен: $ip")
+            } catch (e: Exception) {
+                Log.e(TAG, "Ошибка при сохранении IP: ${e.localizedMessage}")
+            }
         }
     }
 }

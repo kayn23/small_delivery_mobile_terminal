@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import com.kafpin.jwtauth.models.stocks.Stock
-import com.kafpin.jwtauth.ui.viewmodels.AcceptCargoResult
 import com.kafpin.jwtauth.ui.viewmodels.AcceptCargoViewModel
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
 
 @Composable
@@ -47,32 +47,42 @@ fun ApproveCargoDialog(
 @Composable
 fun AcceptResultDialogWrapper(cargoViewModel: AcceptCargoViewModel) {
 
-    val acceptResult by cargoViewModel.acceptResult.observeAsState()
+    val acceptResult by cargoViewModel.acceptResult.observeAsState(RequestResult.Init)
 
     fun onClose() {
         cargoViewModel.clearState()
     }
 
     when (val data = acceptResult) {
-        is AcceptCargoResult.Error -> {
+        is RequestResult.Error -> {
             AcceptCargoResultDialog(text = "Error: ${data.message}", onClose = { onClose() })
         }
 
-        AcceptCargoResult.Loading -> {}
+        is RequestResult.Loading -> {}
 
-        is AcceptCargoResult.NetworkError -> {
+        is RequestResult.NetworkError -> {
             AcceptCargoResultDialog(text = "Error: ${data.error}", onClose = { onClose() })
         }
 
-        is AcceptCargoResult.Success -> {
+        is RequestResult.Success -> {
             AcceptCargoResultDialog(
                 endInvoice = data.result.endInvoice,
                 endShipping = data.result.endInvoice,
                 onClose = { onClose() }
             )
         }
-
-        null -> {}
+        RequestResult.Init -> {}
+        RequestResult.ServerNotAvailable -> {
+            IpInputDialog(
+                onConfirm = { newIp ->
+                    cargoViewModel.saveServerIp(newIp)
+                },
+                ipServerManager = cargoViewModel.ipServerManager,
+                onDismiss = {
+                    cargoViewModel.clearState()
+                }
+            )
+        }
     }
 }
 

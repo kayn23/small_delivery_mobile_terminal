@@ -95,6 +95,8 @@ dependencies {
 
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.3.3")
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
     /*
     // Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
