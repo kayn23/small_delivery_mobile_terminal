@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StockSelectScreenViewModel @Inject constructor(
-    private val ipServerManager: IpServerManager,
+    override val ipServerManager: IpServerManager,
     public val stockInfoManager: StockInfoManager
 ) : BaseViewModel(
     ipServerManager

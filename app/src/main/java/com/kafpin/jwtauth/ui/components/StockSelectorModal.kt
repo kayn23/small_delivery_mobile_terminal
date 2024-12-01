@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -60,33 +59,16 @@ fun StockSelectorModal(viewModel: StockListViewModel = hiltViewModel(), onClose:
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                when (stocksResult) {
-                    is RequestResult.Loading -> {
-                        CircularProgressIndicator()
-                    }
-                    is RequestResult.Success -> {
+                HandleRequestResult(
+                    viewModel = viewModel,
+                    result = stocksResult,
+                    success = {
                         stockList.value = (stocksResult as RequestResult.Success).result.items
+                    },
+                    onDismiss = {
+                        viewModel.clearSockData()
                     }
-                    is RequestResult.Error -> {
-                        Text("Error: ${(stocksResult as RequestResult.Error).message}")
-                    }
-                    is RequestResult.NetworkError -> {
-                        Text("Network Error: ${(stocksResult as RequestResult.NetworkError).error}")
-                    }
-
-                    RequestResult.Init -> {}
-                    RequestResult.ServerNotAvailable -> {
-                        IpInputDialog(
-                            onConfirm = { newIp ->
-                                viewModel.saveServerIp(newIp)
-                            },
-                            ipServerManager = viewModel.ipServerManager,
-                            onDismiss = {
-                                viewModel.clearSockData()
-                            }
-                        )
-                    }
-                }
+                )
 
                 // Список складов с возможностью выбора
                 LazyColumn {

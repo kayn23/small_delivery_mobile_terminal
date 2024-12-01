@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AcceptCargoViewModel @Inject constructor(
     private val cargoService: CargoService,
-    public val ipServerManager: IpServerManager
+    override val ipServerManager: IpServerManager
 ) :
     BaseViewModel(ipServerManager) {
     private val TAG = "AcceptCargoViewModel"

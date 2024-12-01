@@ -21,7 +21,7 @@ class AuthViewModel @Inject constructor(
     private val authService: AuthService,
     private val tokenManager: TokenManager,
     private val roleManager: RoleManager,
-    public val ipServerManager: IpServerManager,
+    public override val ipServerManager: IpServerManager,
 ) : BaseViewModel(ipServerManager) {
     val TAG = "AuthViewModel"
 

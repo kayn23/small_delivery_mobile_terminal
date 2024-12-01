@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShippingListViewModel @Inject constructor(
     private val shippingService: ShippingService,
-    public val ipServerManager: IpServerManager
+    override val ipServerManager: IpServerManager
 ) :
     BaseViewModel(ipServerManager) {
 

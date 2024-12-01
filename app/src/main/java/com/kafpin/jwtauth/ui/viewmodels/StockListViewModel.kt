@@ -17,7 +17,7 @@ import javax.inject.Inject
 class StockListViewModel @Inject constructor(
     private val stockService: StockService,
     private val stockInfoManager: StockInfoManager,
-    public val ipServerManager: IpServerManager
+    override val ipServerManager: IpServerManager
 ) : BaseViewModel(ipServerManager) {
 
     private val _stocksData = MutableLiveData<RequestResult<StockList>>(RequestResult.Init)

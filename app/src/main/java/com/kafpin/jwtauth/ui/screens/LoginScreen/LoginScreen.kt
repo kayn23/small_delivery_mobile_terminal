@@ -1,14 +1,11 @@
 package com.kafpin.jwtauth.ui.screens.LoginScreen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -22,17 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kafpin.jwtauth.ui.components.IpInputDialog
+import com.kafpin.jwtauth.ui.components.HandleRequestResult
 import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
     onSigned: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxSize()
+    modifier: Modifier = Modifier
 ) {
-    var username by remember { mutableStateOf("admin@gmail.com") }
-    var password by remember { mutableStateOf("232111") }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     val requestResult by viewModel.requestResult.observeAsState(RequestResult.Init)
 
@@ -72,34 +69,9 @@ fun LoginScreen(
             Text("Login", fontSize = 20.sp)
         }
 
-        when (val data = requestResult) {
-            is RequestResult.Error -> {
-                Text("Error: ${data.message}")
-            }
-
-            RequestResult.Loading -> {
-                Row(horizontalArrangement = Arrangement.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is RequestResult.NetworkError -> {
-                Text(text = "Ошибка: ${data.error}", style = MaterialTheme.typography.bodyLarge)
-            }
-
-            is RequestResult.Success -> {}
-            is RequestResult.Init -> {}
-            is RequestResult.ServerNotAvailable -> {
-                IpInputDialog(
-                    onConfirm = { newIp ->
-                        viewModel.saveServerIp(newIp)
-                    },
-                    ipServerManager = viewModel.ipServerManager,
-                    onDismiss = {
-                        viewModel.clearState()
-                    }
-                )
-            }
-        }
+        HandleRequestResult(
+            viewModel= viewModel,
+            result = requestResult,
+        )
     }
 }

@@ -33,6 +33,7 @@ import com.kafpin.jwtauth.data.dataStore.RoleManager
 import com.kafpin.jwtauth.models.shippings.ShortShippingOne
 import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import com.kafpin.jwtauth.models.stocks.Stock
+import com.kafpin.jwtauth.ui.components.HandleRequestResult
 import com.kafpin.jwtauth.ui.components.StockSelectorModal
 import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
@@ -50,7 +51,7 @@ fun CreateShippingScreen(
 
     val userId by roleManager.userIdFlow.collectAsState(null)
     val role by roleManager.roleFlow.collectAsState(null)
-    val createShippingResult by viewModel.createShippingResult.observeAsState()
+    val createShippingResult by viewModel.createShippingResult.observeAsState(RequestResult.Init)
 
     // State for showing the StockSelectorModal
     var showStartPointModal by remember { mutableStateOf(false) }
@@ -184,5 +185,13 @@ fun CreateShippingScreen(
         ) {
             Text("Submit Shipping", style = MaterialTheme.typography.titleMedium)
         }
+
+        HandleRequestResult(
+            viewModel = viewModel,
+            result = createShippingResult,
+            onDismiss = {
+                viewModel.clearState()
+            }
+        )
     }
 }

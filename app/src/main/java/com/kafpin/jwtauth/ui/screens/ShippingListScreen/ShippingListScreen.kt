@@ -6,18 +6,15 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.kafpin.jwtauth.ui.components.IpInputDialog
+import com.kafpin.jwtauth.ui.components.HandleRequestResult
 import com.kafpin.jwtauth.ui.screens.ShippingListScreen.components.ShippingListPreview
 import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
@@ -74,45 +71,19 @@ fun ShippingListScreen(
                         }
                     }
             ) {
-                when (val data = shippingResult) {
-                    is RequestResult.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.fillMaxSize())
-                    }
-
-                    is RequestResult.Error -> {
-                        Text(
-                            text = "Ошибка: ${data.message}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-
-                    is RequestResult.NetworkError -> {
-                        Text(
-                            text = "Ошибка: ${data.error}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-
-                    is RequestResult.Success -> {
+                HandleRequestResult(
+                    viewModel = viewModel,
+                    result = shippingResult,
+                    success = { result ->
                         ShippingListPreview(
-                            shippingList = data.result,
+                            shippingList = result.result,
                             onSelectShipping = onSelectShipping,
                         )
+                    },
+                    onDismiss = {
+                        viewModel.clearState()
                     }
-
-                    RequestResult.Init -> {}
-                    RequestResult.ServerNotAvailable -> {
-                        IpInputDialog(
-                            onConfirm = { newIp ->
-                                viewModel.saveServerIp(newIp)
-                            },
-                            ipServerManager = viewModel.ipServerManager,
-                            onDismiss = {
-                                viewModel.clearState()
-                            }
-                        )
-                    }
-                }
+                )
             }
         }
     }

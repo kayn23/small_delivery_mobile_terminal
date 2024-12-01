@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateShippingViewModel @Inject constructor(
     private val shippingService: ShippingService,
-    private val ipServerManager: IpServerManager,
+    public override val ipServerManager: IpServerManager,
 ) :
     BaseViewModel(ipServerManager) {
     private val TAG = "CreateShippingViewModel"
@@ -32,6 +32,10 @@ class CreateShippingViewModel @Inject constructor(
                 _result
             )
         }
+    }
+
+    fun clearState() {
+        _result.postValue(RequestResult.Init)
     }
 
 }

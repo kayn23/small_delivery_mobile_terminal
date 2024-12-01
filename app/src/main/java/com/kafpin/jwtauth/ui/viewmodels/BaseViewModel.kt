@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 
 open class BaseViewModel @Inject constructor(
-    private val ipServerManager: IpServerManager  // Инжектируем IpServerManager
+    public open val ipServerManager: IpServerManager  // Инжектируем IpServerManager
 ) : ViewModel() {
     private val TAG = "ViewModel"
 
@@ -38,12 +38,10 @@ open class BaseViewModel @Inject constructor(
         return errorMessage
     }
 
-    // Метод для извлечения деталей ошибки из ResponseBody
     protected fun parseError(responseBody: ResponseBody?): String {
         return try {
             val gson = Gson()
             val errorJson = gson.fromJson(responseBody?.charStream(), JsonObject::class.java)
-            // Вы можете адаптировать это под формат ошибки, который возвращает ваше API
             errorJson.get("message")?.asString ?: "Unknown error"
         } catch (e: Exception) {
             "Failed to parse error: ${e.localizedMessage}"
@@ -92,10 +90,8 @@ open class BaseViewModel @Inject constructor(
                 val response = call()
                 if (response.isSuccessful) {
                     response.body()?.let { res ->
-                        response.body()?.let { res ->
-                            _result.value = response.body()?.let { RequestResult.Success(it) }
-                            successCallback(res)
-                        }
+                        _result.value = response.body()?.let { RequestResult.Success(it) }
+                        successCallback(res)
                     } ?: run {
                         _result.value = RequestResult.Error("Пустой ответ")
                     }
