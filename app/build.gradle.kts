@@ -97,23 +97,5 @@ dependencies {
     implementation("com.google.zxing:core:3.3.3")
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
-    /*
-    // Jetpack Compose
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-
-    // Hilt for Dependency Injection
-    implementation("com.google.dagger:hilt-android:2.52")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    kapt("com.google.dagger:hilt-compiler:2.52")
-
-    // Retrofit for API calls
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-
-    // DataStore for storing JWT token
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-
-    // Coroutine support
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    * */
+ 
 }
