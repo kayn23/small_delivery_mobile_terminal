@@ -3,10 +3,10 @@ package com.kafpin.jwtauth.ui.screens.CreateShippingScreen
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.kafpin.jwtauth.data.IpServerManager
+import com.kafpin.jwtauth.data.dataStore.IpServerManager
 import com.kafpin.jwtauth.models.shippings.ShortShippingOne
 import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
-import com.kafpin.jwtauth.network.ShippingService
+import com.kafpin.jwtauth.network.services.ShippingService
 import com.kafpin.jwtauth.ui.viewmodels.BaseViewModel
 import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 import dagger.hilt.android.lifecycle.HiltViewModel

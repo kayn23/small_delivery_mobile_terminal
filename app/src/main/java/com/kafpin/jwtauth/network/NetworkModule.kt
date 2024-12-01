@@ -1,9 +1,14 @@
 package com.kafpin.jwtauth.network
 
-import android.util.Log
-import androidx.compose.runtime.collectAsState
-import com.kafpin.jwtauth.data.IpServerManager
-import com.kafpin.jwtauth.data.TokenManager
+import com.kafpin.jwtauth.data.dataStore.IpServerManager
+import com.kafpin.jwtauth.data.dataStore.TokenManager
+import com.kafpin.jwtauth.network.interceptors.AuthInterceptor
+import com.kafpin.jwtauth.network.interceptors.BaseUrlInterceptor
+import com.kafpin.jwtauth.network.services.AuthService
+import com.kafpin.jwtauth.network.services.CargoService
+import com.kafpin.jwtauth.network.services.InvoiceService
+import com.kafpin.jwtauth.network.services.ShippingService
+import com.kafpin.jwtauth.network.services.StockService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

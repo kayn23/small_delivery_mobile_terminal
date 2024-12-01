@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -29,12 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.kafpin.jwtauth.data.Role
-import com.kafpin.jwtauth.data.RoleManager
+import com.kafpin.jwtauth.data.dataStore.Role
+import com.kafpin.jwtauth.data.dataStore.RoleManager
 import com.kafpin.jwtauth.models.shippings.ShortShippingOne
 import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import com.kafpin.jwtauth.models.stocks.Stock
-import com.kafpin.jwtauth.ui.screens.components.StockSelectorModal
+import com.kafpin.jwtauth.ui.components.StockSelectorModal
 import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
 @Composable

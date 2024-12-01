@@ -3,12 +3,12 @@ package com.kafpin.jwtauth.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.kafpin.jwtauth.data.IpServerManager
-import com.kafpin.jwtauth.data.StockInfoManager
+import com.kafpin.jwtauth.data.dataStore.IpServerManager
+import com.kafpin.jwtauth.data.dataStore.StockInfoManager
 import com.kafpin.jwtauth.models.stocks.Stock
 import com.kafpin.jwtauth.models.stocks.StockList
-import com.kafpin.jwtauth.network.StockService
-import com.kafpin.jwtauth.network.createPaginationQueryMap
+import com.kafpin.jwtauth.network.services.StockService
+import com.kafpin.jwtauth.network.services.createPaginationQueryMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

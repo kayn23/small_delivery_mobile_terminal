@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.kafpin.jwtauth.data.IpServerManager
+import com.kafpin.jwtauth.data.dataStore.IpServerManager
 import com.kafpin.jwtauth.models.shippings.ShippingList
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
