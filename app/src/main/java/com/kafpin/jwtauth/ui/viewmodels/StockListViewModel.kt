@@ -31,7 +31,6 @@ class StockListViewModel @Inject constructor(
     private val perPage = 50  // или другой размер страницы
 
     private val _stockSave = MutableLiveData(false)
-    val stockSave: LiveData<Boolean> get() = _stockSave
 
     fun searchStocks(query: String) {
         val paginationQuery = createPaginationQueryMap(

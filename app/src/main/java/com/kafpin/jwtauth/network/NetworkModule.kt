@@ -6,7 +6,6 @@ import com.kafpin.jwtauth.network.interceptors.AuthInterceptor
 import com.kafpin.jwtauth.network.interceptors.BaseUrlInterceptor
 import com.kafpin.jwtauth.network.services.AuthService
 import com.kafpin.jwtauth.network.services.CargoService
-import com.kafpin.jwtauth.network.services.InvoiceService
 import com.kafpin.jwtauth.network.services.ShippingService
 import com.kafpin.jwtauth.network.services.StockService
 import dagger.Module
@@ -50,12 +49,6 @@ object NetworkModule {
     @Singleton
     fun provideAuthService(retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideInvoiceService(retrofit: Retrofit): InvoiceService {
-        return retrofit.create(InvoiceService::class.java)
     }
 
     @Provides

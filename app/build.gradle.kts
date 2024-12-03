@@ -97,5 +97,5 @@ dependencies {
     implementation("com.google.zxing:core:3.3.3")
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
- 
+
 }

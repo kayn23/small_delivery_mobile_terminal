@@ -5,7 +5,6 @@ sealed class AppDestinations(val title: String, val route: String) {
     object Home: AppDestinations("Account home", "account_home");
     object StockSelect: AppDestinations("Stock select", "stock_select");
     object CreateShipping: AppDestinations("Shipping create", "shipping_create");
-    data class InvoiceDetails(val id: String): AppDestinations("Invoice details", "invoice/$id");
     data class ShippingDetails(val id: String): AppDestinations("Shipping details", "shipping/$id")
 
     companion object {
@@ -18,10 +17,6 @@ sealed class AppDestinations(val title: String, val route: String) {
                 route?.startsWith("shipping/") == true -> {
                     val id = route.substringAfter("shipping/")
                     ShippingDetails(id)
-                }
-                route?.startsWith("invoice/") == true -> {
-                    val id = route.substringAfter("invoice/")
-                    InvoiceDetails(id)
                 }
                 else -> null
             }

@@ -62,8 +62,4 @@ interface ShippingService {
     @AuthRequired
     @DELETE("shipping/{id}")
     suspend fun removeShipping(@Path("id") id: Int): Response<ShortShippingOne>
-
-    @AuthRequired
-    @POST("cargo/acceptCargo")
-    suspend fun applyCargo(@Body acceptCargoDto: ApplyCargoDto): Response<AcceptCargoResponseDto>
 }
