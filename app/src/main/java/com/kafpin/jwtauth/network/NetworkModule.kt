@@ -25,7 +25,7 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(tokenManager: TokenManager, ipServerManager: IpServerManager): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.HEADERS // Вы можете изменить уровень логирования
+            level = HttpLoggingInterceptor.Level.BODY // Вы можете изменить уровень логирования
         }
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)

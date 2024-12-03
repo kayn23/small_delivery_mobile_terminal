@@ -81,7 +81,7 @@ fun ShippingListScreen(
                         )
                     },
                     onDismiss = {
-                        viewModel.clearState()
+                        refreshData(viewModel)
                     }
                 )
             }

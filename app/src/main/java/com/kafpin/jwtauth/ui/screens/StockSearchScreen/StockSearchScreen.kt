@@ -11,6 +11,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,6 +24,7 @@ import com.kafpin.jwtauth.ui.screens.ShippingInfoScreen.components.CargoQrData
 import com.kafpin.jwtauth.ui.screens.StockSearchScreen.components.AcceptResultDialogWrapper
 import com.kafpin.jwtauth.ui.screens.StockSearchScreen.components.AdminBottomBar
 import com.kafpin.jwtauth.ui.screens.StockSearchScreen.components.ApproveCargoDialog
+import com.kafpin.jwtauth.ui.viewmodels.RequestResult
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -34,6 +36,7 @@ fun StockSearchScreen(
 
     var isScanDialogOpen by remember { mutableStateOf(false) }
     var cargoInfo by remember { mutableStateOf<CargoQrData?>(null) }
+    val acceptResult by cargoViewModel.acceptResult.observeAsState(RequestResult.Init)
 
     var showSelectStockModal by remember { mutableStateOf(false) }
 
@@ -101,7 +104,7 @@ fun StockSearchScreen(
                 }
             }
         }
+
         AcceptResultDialogWrapper(cargoViewModel)
     }
-
 }

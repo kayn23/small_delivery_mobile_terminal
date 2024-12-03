@@ -66,7 +66,7 @@ fun StockSelectorModal(viewModel: StockListViewModel = hiltViewModel(), onClose:
                         stockList.value = (stocksResult as RequestResult.Success).result.items
                     },
                     onDismiss = {
-                        viewModel.clearSockData()
+                        viewModel.searchStocks(searchText)
                     }
                 )
 

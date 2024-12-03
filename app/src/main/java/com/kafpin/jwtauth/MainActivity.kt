@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             JwtAuthTheme(darkTheme = true) {
                 MaterialTheme {
-                    MyApplication(tokenManager, roleManager, stockInfoManager)
+                    MyApplication(tokenManager, roleManager, stockInfoManager, ipServerManager)
                 }
             }
         }

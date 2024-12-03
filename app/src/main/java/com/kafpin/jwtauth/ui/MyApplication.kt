@@ -8,12 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.kafpin.jwtauth.data.dataStore.IpServerManager
 import com.kafpin.jwtauth.data.dataStore.RoleManager
 import com.kafpin.jwtauth.data.dataStore.StockInfoManager
 import com.kafpin.jwtauth.data.dataStore.TokenManager
@@ -25,6 +28,7 @@ fun MyApplication(
     tokenManager: TokenManager,
     roleManager: RoleManager,
     stockInfoManager: StockInfoManager,
+    ipServerManager: IpServerManager,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -35,6 +39,11 @@ fun MyApplication(
         AppDestinations.fromRoute(backStackEntry?.destination?.route) ?: AppDestinations.Home
 
     val canNavigateBack = navController.previousBackStackEntry != null
+    val ipState by ipServerManager.ipStateFlow.collectAsState(null)
+
+    LaunchedEffect(Unit) {
+        ipServerManager.getServerIp()
+    }
 
     fun signOut() {
         coroutineScope.launch {
@@ -50,35 +59,37 @@ fun MyApplication(
         }
     }
 
-    Scaffold(
-        topBar = {
-            Box() {
-                Header(
-                    currentScreen = currentScreen,
-                    canNavigateBack = canNavigateBack,
-                    onNavigateUpClicked = { navController.navigateUp() },
-                    tokenManager = tokenManager,
-                    signout = {
-                        signOut()
-                    }
-                )
+    if (ipState != null) {
+        Scaffold(
+            topBar = {
+                Box() {
+                    Header(
+                        currentScreen = currentScreen,
+                        canNavigateBack = canNavigateBack,
+                        onNavigateUpClicked = { navController.navigateUp() },
+                        tokenManager = tokenManager,
+                        signout = {
+                            signOut()
+                        }
+                    )
+                }
             }
-        }
-    ) {
-        Surface(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(it),
-            color = MaterialTheme.colorScheme.background
-
         ) {
-            Column {
-                AppNavHost(
-                    navController = navController,
-                    modifier = modifier.padding(8.dp),
-                    tokenManager,
-                    roleManager,
-                )
+            Surface(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(it),
+                color = MaterialTheme.colorScheme.background
+
+            ) {
+                Column {
+                    AppNavHost(
+                        navController = navController,
+                        modifier = modifier.padding(8.dp),
+                        tokenManager,
+                        roleManager,
+                    )
+                }
             }
         }
     }

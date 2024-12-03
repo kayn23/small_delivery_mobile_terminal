@@ -2,6 +2,8 @@ package com.kafpin.jwtauth.ui.screens.ShippingInfoScreen
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,8 +77,13 @@ fun ShippingInfoScreen(
                 }
             )
         },
+        error = {
+            TextButton(onClick = { viewModel.reloadShippingData(shippingId) }) {
+                Text("Back")
+            }
+        },
         onDismiss = {
-            viewModel.clearShippingState()
+            viewModel.reloadShippingData(shippingId)
         }
     )
 
