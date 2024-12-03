@@ -49,15 +49,4 @@ class StockListViewModel @Inject constructor(
             )
         }
     }
-
-    fun saveStockInfo(stock: Stock) {
-        viewModelScope.launch {
-            stockInfoManager.saveStockInfo(stock)
-            _stockSave.value = true
-        }
-    }
-
-    fun setSaveStockStatus(value: Boolean = false) {
-        _stockSave.value = value
-    }
 }

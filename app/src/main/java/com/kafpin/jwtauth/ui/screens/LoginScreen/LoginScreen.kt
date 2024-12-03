@@ -70,8 +70,9 @@ fun LoginScreen(
         }
 
         HandleRequestResult(
-            viewModel= viewModel,
+            viewModel = viewModel,
             result = requestResult,
+            onDismiss = { viewModel.clearState() }
         )
     }
 }

@@ -3,9 +3,7 @@ package com.kafpin.jwtauth.network.services
 import com.kafpin.jwtauth.models.shippings.ShippingList
 import com.kafpin.jwtauth.models.shippings.ShippingOne
 import com.kafpin.jwtauth.models.shippings.ShortShippingOne
-import com.kafpin.jwtauth.models.shippings.dto.AcceptCargoResponseDto
 import com.kafpin.jwtauth.models.shippings.dto.AddCargoToShippingDto
-import com.kafpin.jwtauth.models.shippings.dto.ApplyCargoDto
 import com.kafpin.jwtauth.models.shippings.dto.CreateShippingDto
 import com.kafpin.jwtauth.network.interceptors.AuthRequired
 import retrofit2.Response
@@ -21,7 +19,7 @@ enum class PaginationQueryParam(val value: String) {
     PAGE("page"),
     PER_PAGE("perPage"),
     SEARCH("search"),
-    FIELDS("fields")
+//    FIELDS("fields")
 }
 
 fun createPaginationQueryMap(
