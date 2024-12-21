@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .img_container {
+      display: flex;
+      align-items: flex-end;
+    }
+    .img_container img:hover {
+      transform: scale(300%);
+    }
+    .error_img {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      margin: 0 auto;
+      max-width: 800px;
+    }
+    .hide {
+      display: none;
+    }
+    .invoice {
+      box-sizing: border-box;
+      cursor: pointer;
+      padding: 10px 0;
+      border-bottom: 1px solid black;
+      border-top: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div>
+    <p>StartPoint</p>
+    <pre>
+      "startPoint": {
+        "id": 18,
+        "name": "ОЗОН",
+        "address": "Судогодское шоссе 1",
+        "city": {
+          "id": 497,
+          "name": "Владимир"
+        }
+      }
+    </pre>
+    <p>EndPoint</p>
+    <pre>
+      "endPoint": {
+        "id": 5,
+        "name": 'ПВЗ "OZON"',
+        "address": "ул. Воровского, 22",
+        "city": { 
+          "id": 512,
+          "name": "Муром"
+        }
+      }
+    </pre>
+  </div>
+</div>
+  
+<script src="index.js"></script>
+</body>
+</html>
